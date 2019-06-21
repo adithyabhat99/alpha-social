@@ -1,0 +1,97 @@
+create database users;
+create table users.user
+(
+    userid varchar(255) primary key,
+    username varchar(128) not null unique key,
+    firstname varchar(128) not null,
+    lastname varchar(128) not null,
+    password varchar(255) not null,
+    email varchar(30) unique key,
+    token varchar(255) not null unique key,
+    verified tinyint(1) not null default '0',
+    phoneno varchar(15) unique key,
+    phonetoken varchar(255) unique key,
+    verifiedphone tinyint(1) not null default '0',
+    public tinyint(1) not null default '0',
+    datecreated datetime not null,
+    dateupdated datetime not null,
+    bio varchar(255)
+);
+create table users.followre
+(
+    follower int(11) not null,
+    followed int(11) not null,
+    date datetime not null,
+    foreign key(follower) references users.user(userid) on delete cascade,
+    foreign key(followed) references users.user(userid) on delete cascade
+);
+create table users.follow
+(
+    follower varchar(255) not null,
+    followed varchar(255) not null,
+    date datetime not null,
+    muted tinyint(1) not null default '0',
+    foreign key(follower) references users.user(userid) on delete cascade,
+    foreign key(followed) references users.user(userid) on delete cascade
+);
+create table users.reports
+(
+    userid varchar(255) not null,
+    reportedby varchar(255) not null,
+    foreign key (userid) references users.user(userid) on delete cascade
+);
+
+create database posts;
+create table posts.post
+(
+    postid varchar(255) primary key,
+    userid varchar(255) not null,
+    date datetime not null,
+    dateupdated datetime not null,
+    filename varchar(255) not null,
+    location varchar(128),
+    public tinyint(1) not null default '0',
+    caption varchar(255)
+);
+create table posts.hashtags
+(
+    postid varchar(255) not null,
+    hashtagid int(11) auto_increment primary key,
+    mainuser varchar(255) not null,
+    hashtag varchar(128) not null,
+    foreign key (postid) references posts.post(postid) on delete cascade
+);
+create table posts.tags
+(
+    tagid int(11) auto_increment primary key,
+    userid varchar(255) not null,
+    mainuser varchar(255) not null,
+    postid varchar(255) not null,
+    foreign key (postid) references posts.post(postid) on delete cascade
+);
+create table posts.likes
+(
+    postid varchar(255) not null,
+    likeid int(11) auto_increment primary key,
+    userid varchar(255) not null,
+    mainuser varchar(255) not null,
+    date datetime not null,
+    foreign key (postid) references posts.post(postid) on delete cascade
+);
+create table posts.comments
+(
+    postid varchar(255) not null,
+    commentid int(11) auto_increment primary key,
+    userid varchar(255) not null,
+    mainuser varchar(255) not null,
+    date datetime not null,
+    message varchar(255) not null,
+    foreign key (postid) references posts.post(postid) on delete cascade
+);
+create table posts.reports
+(
+    postid varchar(255) not null,
+    reportedby varchar(255) not null,
+    mainuser varchar(255) not null,
+    foreign key (postid) references posts.post(postid) on delete cascade
+);
