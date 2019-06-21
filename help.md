@@ -54,22 +54,3 @@ For both databases-
 create user 'root'@'172.17.0.1' identified by '123654654';
 GRANT ALL PRIVILEGES ON * . * TO 'root'@'172.17.0.1';
 
-
-/* Future work
-There is an authentification microservice which will return a token on correct username and password
-
-There will be a post microservice which will work on users posting images or videos
-
-There will be a profile service which will handle users following and create or delete account etc.
-
-There will be a home page service which will precompute the home page for every user
-and return whenever asked
-
-There will also be a push service which sends sms/emails etc.
-
-There will be a front and server as a microservice, this will be done at the end 
-
-Activity database
-Discover service
-Messaging service
-*/
