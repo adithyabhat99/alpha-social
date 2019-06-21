@@ -10,7 +10,8 @@
 # Future work
 - Posts service to post images 
 - Home page service to fetch a user's custom home page contents 
-- Front end client 
+- Front end client
+- Reverse proxy server
 - Discover service fetching trending public posts 
 - Messaging service 
 
