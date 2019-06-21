@@ -6,10 +6,12 @@ values('uuid','username','first','last','pw','mail','phone','tok','phonet','1','
 
 Test createuser(You can also use postman)-
 
-curl -H "Content-Type: pplication/json" -POST -d '{"username":"adi","password":"123","firstname":"a","lastname":"b","email":"di"}' http://localhost:7700/api/v1.0/createuser
+curl -H "Content-Type: pplication/json" -POST -d '{"username":"adi","password":"123","firstname":"a","lastname":"b","email":"adithyabhat99@gmail.com"}' http://localhost:7700/api/v1.0/createuser
 
 To test login use postman basic auth
 The login token returned by server will be like this-
 {
-    "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyaWQiOiI3NTRkNDRlMy0xYTM1LTRmNzktOTA0NS1kZTY2M2NiOGYyM2QiLCJ1c2VybmFtZSI6ImFkaSIsImV4cCI6MTU2MTcwNzg2MH0.lgM17S_KoPzxlmNu82zCbNRuNdCnaR32YL7f_GvfsGA"
+    "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyaWQiOiIyZTExODg0ZC0zOTRkLTRlYjgtODNkNy05YjQ2YjYxMDhkOTIiLCJ1c2VybmFtZSI6ImFkaSIsImV4cCI6MTU2MTcxOTM5Mn0.d0HqkX6Bqg74dLi3KG2MPI_EHxSivDac2Cq1rAXkStQ"
 }
+
+To test all api endpoints, use postman
