@@ -13,9 +13,9 @@ app = Flask(__name__)
 mysql = MySQL(app)
 
 app.secret_key = 'adi123secret'
-UPLOAD_FOLDER = '/mnt/Users'
+USERS_FOLDER = '/mnt/Users'
 ALLOWED_EXTENSIONS = set(['jpg', 'png'])
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['USERS_FOLDER'] = USERS_FOLDER
 # MySQL Configs
 app.config['MYSQL_DATABASE_USER'] = 'root'
 app.config['MYSQL_DATABASE_PASSWORD'] = '123654654'
@@ -49,6 +49,28 @@ def allowed_file(filename):
 def file_extension(filename):
     return filename.rsplit('.', 1)[1]
 
+def get_follow_count(userid):
+    query="select count(*) from users.follow where followed='{0}'".format(userid)
+    try:
+        conn=mysql.connect()
+        cursor=conn.cursor()
+        cursor.execute(query)
+        result=cursor.fetchall()
+        return result[0][0]
+    except:
+        return 0
+
+
+def get_following_count(userid):
+    query="select count(*) from users.follow where follower='{0}'".format(userid)
+    try:
+        conn=mysql.connect()
+        cursor=conn.cursor()
+        cursor.execute(query)
+        result=cursor.fetchall()
+        return result[0][0]
+    except:
+        return 0
 
 @app.route('/')
 def hi():
@@ -188,16 +210,16 @@ def update(userid):
     if file.filename == '':
         return jsonify({"message": "error:file required"}), 401
     if file and allowed_file(file.filename):
-        os.remove(os.path.join(app.config['UPLOAD_FOLDER'], userid+".jpg"))
+        os.remove(os.path.join(app.config['USERS_FOLDER'], userid+".jpg"))
         if file_extension(file.filename) == "png":
             im = Image.open(request.files['file'].stream)
             rgb_im = im.convert('RGB')
             filename = str(userid)+'.jpg'
             rgb_im.save(os.path.join(
-                app.config['UPLOAD_FOLDER'], filename), "JPEG")
+                app.config['USERS_FOLDER'], filename), "JPEG")
         else:
             filename = str(userid)+'.jpg'
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            file.save(os.path.join(app.config['USERS_FOLDER'], filename))
         time = datetime.datetime.now()
         time = time.strftime('%Y-%m-%d %H:%M:%S')
         query = "update users.user set dateupdated='{0}' where userid='{1}'".format(
@@ -217,11 +239,11 @@ def update(userid):
 @app.route('/api/v1.0/update/deleteprofilepic', methods=['GET', 'POST'])
 @token_required
 def delpic(userid):
-    os.remove(os.path.join(app.config['UPLOAD_FOLDER'], userid+".jpg"))
+    os.remove(os.path.join(app.config['USERS_FOLDER'], userid+".jpg"))
     filename = userid+".jpg"
     defaultfile = 'defualt.jpg'
-    shutil.copy(os.path.join(app.config['UPLOAD_FOLDER'], defaultfile), os.path.join(
-        app.config['UPLOAD_FOLDER'], filename))
+    shutil.copy(os.path.join(app.config['USERS_FOLDER'], defaultfile), os.path.join(
+        app.config['USERS_FOLDER'], filename))
     time = datetime.datetime.now()
     time = time.strftime('%Y-%m-%d %H:%M:%S')
     query = "update users.user set dateupdated='{0}' where userid='{1}'".format(
@@ -239,7 +261,7 @@ def delpic(userid):
 @app.route('/api/v1.0/getmyprofilepic', methods=['GET', 'POST'])
 @token_required
 def getmyprofilepic(userid):
-    filename = os.path.join(app.config['UPLOAD_FOLDER'], userid+".jpg")
+    filename = os.path.join(app.config['USERS_FOLDER'], userid+".jpg")
     return send_file(filename, mimetype='image/gif')
 
 
@@ -252,7 +274,6 @@ def getmydetails(userid):
     cursor.execute(query)
     result = cursor.fetchall()
     cursor.close()
-    conn.close()
     username = result[0][1]
     firstname = result[0][2]
     lastname = result[0][3]
@@ -271,6 +292,8 @@ def getmydetails(userid):
         bio = None
     else:
         bio = result[0][14]
+    followerscount=get_follow_count(userid)
+    followingcount=get_following_count(userid)
     details = {
         "username": username,
         "firstname": firstname,
@@ -280,7 +303,9 @@ def getmydetails(userid):
         "public": public,
         "datecreated": datecreated,
         "dateupdated": dateupdated,
-        "bio": bio
+        "bio": bio,
+        "followerscount":followerscount,
+        "followingcount":followingcount
     }
     return jsonify(details), 200
 
@@ -316,7 +341,7 @@ def login():
     return make_response('Could not verify 2', 401, {'WWW-Authenticate': 'Basic realm="Login required"'})
 
 
-@app.route('/api/v1.0/createuser', methods=['GET', 'POST'])
+@app.route('/api/v1.0/creataccount', methods=['GET', 'POST'])
 def create_user():
     data = request.get_json(force=True)
     print(data)
@@ -384,8 +409,8 @@ def create_user():
     conn.close()
     filename = str(userid)+".jpg"
     defaultfile = 'defualt.jpg'
-    shutil.copy(os.path.join(app.config['UPLOAD_FOLDER'], defaultfile), os.path.join(
-        app.config['UPLOAD_FOLDER'], filename))
+    shutil.copy(os.path.join(app.config['USERS_FOLDER'], defaultfile), os.path.join(
+        app.config['USERS_FOLDER'], filename))
     return jsonify({"message": "success!"}), 200
 
 

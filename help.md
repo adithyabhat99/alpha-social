@@ -54,3 +54,11 @@ For both databases-
 create user 'root'@'172.17.0.1' identified by '123654654';
 GRANT ALL PRIVILEGES ON * . * TO 'root'@'172.17.0.1';
 
+
+Cleaning data-
+
+sudo apt-get clean
+
+dpkg -l 'linux-*' | sed '/^ii/!d;/'"$(uname -r | sed "s/\(.*\)-\([^0-9]\+\)/\1/")"'/d;s/^[^ ]* [^ ]* \([^ ]*\).*/\1/;/[0-9]/!d' | xargs sudo apt-get -y purge
+ 
+sudo docker ps --filter status=dead --filter status=exited -aq   | sudo xargs docker rm -v

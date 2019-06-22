@@ -1,0 +1,5 @@
+Flask
+flask-restful
+flask-mysql
+PyJWT
+Pillow

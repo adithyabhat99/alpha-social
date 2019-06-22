@@ -19,9 +19,10 @@ create table users.user
 );
 create table users.followre
 (
-    follower int(11) not null,
-    followed int(11) not null,
+    follower varchar(255) not null,
+    followed varchar(255) not null,
     date datetime not null,
+    id varchar(255) not null unique key,
     foreign key(follower) references users.user(userid) on delete cascade,
     foreign key(followed) references users.user(userid) on delete cascade
 );
@@ -29,6 +30,7 @@ create table users.follow
 (
     follower varchar(255) not null,
     followed varchar(255) not null,
+    id varchar(255) not null unique key,
     date datetime not null,
     muted tinyint(1) not null default '0',
     foreign key(follower) references users.user(userid) on delete cascade,
