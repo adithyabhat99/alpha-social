@@ -277,9 +277,54 @@ def get_request_list(userid):
             col["userid"]=users[0]
             col["username"]=get_username(users[0])
             data.append(col)
-        return jsonify({"list":data})
+        return jsonify({"list":data}),200
     except:
-        return jsonify({"message":"error:could not fetch results"})
+        return jsonify({"message":"error:could not fetch results"}),401
+
+@app.route('/api/v1.0/removefollower/<userid2>')
+@token_required
+def removefollower(userid,userid2):
+    try:
+        query="delete from users.follow where follower='{0}' and following='{1}'".format(userid2,userid)
+        conn=mysql.connect()
+        cursor=conn.cursor()
+        cursor.execute(query)
+        conn.commit()
+        cursor.close()
+        conn.close()
+        return jsonify({"message":"success!"}),200
+    except:
+        return jsonify({"message":"error:could not remove follower"}),401
+
+@app.route('/api/v1.0/muteuser/<userid2>')
+@token_required
+def mute(userid,userid2):
+    try:
+        query="update users.follow set muted='1' where follower='{0}' and following='{1}'".format(userid2,userid)
+        conn=mysql.connect()
+        cursor=conn.cursor()
+        cursor.execute(query)
+        conn.commit()
+        cursor.close()
+        conn.close()
+        return jsonify({"message":"success!"}),200
+    except:
+        return jsonify({"message":"error:could not mute"}),401
+
+@app.route('/api/v1.0/reportuser/<userid2>')
+@token_required
+def mute(userid,userid2):
+    try:
+        query="insert into users.reports(userid,reportedby) values('{0}','{1}')".format(userid2,userid)
+        conn=mysql.connect()
+        cursor=conn.cursor()
+        cursor.execute(query)
+        conn.commit()
+        cursor.close()
+        conn.close()
+        return jsonify({"message":"success!"}),200
+    except:
+        return jsonify({"message":"error:could not mute"}),401
 
 #token not required
 @app.route('/api/v1.0/getdetails/<userid2>')

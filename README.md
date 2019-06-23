@@ -13,6 +13,8 @@
 - Home page service to fetch a user's custom home page contents 
 - Front end client
 - Reverse proxy server
+- Event driven services like notifications,emails,SMS etc.
+ (These will be secure internal APIs)
 - Discover service fetching trending public posts 
 - Messaging service 
 
