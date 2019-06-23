@@ -109,6 +109,20 @@ def get_following_count(userid):
     except:
         return 0
 
+def public_or_not(userid):
+    try:
+        query="select count(*) from users.user where userid='{0}' and public='1'".format(userid)
+        conn=mysql.connect()
+        cursor=conn.cursor()
+        cursor.execute(query)
+        result=cursor.fetchall()
+        cursor.close()
+        conn.close()
+        return result[0][0]
+    except:
+        return 0
+
+
 @app.route('/')
 def hi():
     return jsonify({"mesage": "hi! welcome to follow server"}), 200
@@ -116,11 +130,23 @@ def hi():
 @app.route('/api/v1.0/follow/user/<userid2>',methods=['GET','POST'])
 @token_required
 def follow(userid,userid2):
-    conn=mysql.connect()
+    time=datetime.datetime.now()
+    time=time.strftime('%Y-%m-%d %H:%M:%S')
+    id=userid+'+'+userid2
+    if public_or_not(userid2):
+        try:
+            query="insert into users.follow(follower,followed,date,id) values('{0}','{1}','{2}','{3}')".format(userid,userid2,time,id)
+            conn=mysql.connect()
+            cursor=conn.cursor()
+            cursor.execute(query)
+            cursor.close()
+            conn.commit()
+            conn.close()
+            return jsonify({"message":"success!"}),200
+        except:
+            return jsonify({"message":"error:could not follow {0}".format(userid2)}),401
     try:
-        time=datetime.datetime.now()
-        time=time.strftime('%Y-%m-%d %H:%M:%S')
-        id=userid+'+'+userid2
+        conn=mysql.connect()
         query="insert into users.followre(follower,followed,date,id) values('{0}','{1}','{2}','{3}')".format(userid,userid2,time,id)
         cursor=conn.cursor()
         cursor.execute(query)
@@ -165,7 +191,7 @@ def approve(userid,userid2):
 def get_follow_list(userid,userid2):
     if userid!=userid2 and not follows_or_not(userid,userid2):
         return jsonify({"message":"error:not authorised"}),401
-    query="select follower from users.follow where followed='{0}'".format(userid2)
+    query="select follower from users.follow where followed='{0}' order by date".format(userid2)
     try:
         conn=mysql.connect()
         cursor=conn.cursor()
@@ -188,7 +214,7 @@ def get_follow_list(userid,userid2):
 def get_follower_list(userid,userid2):
     if userid!=userid2 and not follows_or_not(userid,userid2):
         return jsonify({"message":"error:not authorised"}),401
-    query="select followed from users.follow where follower='{0}'".format(userid2)
+    query="select followed from users.follow where follower='{0}' order by date".format(userid2)
     try:
         conn=mysql.connect()
         cursor=conn.cursor()
@@ -205,6 +231,55 @@ def get_follower_list(userid,userid2):
         entry["username"]=get_username(users[0])
         data.append(entry)
     return jsonify({"list":data}),200
+
+@app.route('/api/v1.0/unfollow/<userid2>')
+@token_required
+def unfollow(userid,userid2):
+    try:
+        query="delete from users.follow where followed='{0}' and follower='{1}'".format(userid2,userid)
+        conn=mysql.connect()
+        cursor=conn.cursor()
+        cursor.execute(query)
+        conn.commit()
+        cursor.close()
+        conn.close()
+        return jsonify({"message":"success!"}),200
+    except:
+        return jsonify({"message":"error:could not unfollow"}),401
+
+@app.route('/api/v1.0/disapprove/<userid2>')
+@token_required
+def disapprove(userid,userid2):
+    try:
+        query="delete from users.followre where follower='{0}' and followed='{1}'".format(userid2,userid)
+        conn=mysql.connect()
+        cursor=conn.cursor()
+        cursor.execute(query)
+        conn.commit()
+        cursor.close()
+        conn.close()
+        return jsonify({"message":"success!"}),200
+    except:
+        return jsonify({"message":"error:could not unfollow"}),401
+
+@app.route('/api/v1.0/getrequestlist')
+@token_required
+def get_request_list(userid):
+    try:
+        query="select * from users.followre where followed='{0}'".format(userid)
+        conn=mysql.connect()
+        cursor=conn.cursor()
+        cursor.execute(query)
+        result=cursor.fetchall()
+        data=[]
+        for users in result:
+            col={}
+            col["userid"]=users[0]
+            col["username"]=get_username(users[0])
+            data.append(col)
+        return jsonify({"list":data})
+    except:
+        return jsonify({"message":"error:could not fetch results"})
 
 #token not required
 @app.route('/api/v1.0/getdetails/<userid2>')

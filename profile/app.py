@@ -341,7 +341,7 @@ def login():
     return make_response('Could not verify 2', 401, {'WWW-Authenticate': 'Basic realm="Login required"'})
 
 
-@app.route('/api/v1.0/creataccount', methods=['GET', 'POST'])
+@app.route('/api/v1.0/createaccount', methods=['GET', 'POST'])
 def create_user():
     data = request.get_json(force=True)
     print(data)
