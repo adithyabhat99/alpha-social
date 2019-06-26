@@ -25,6 +25,18 @@ app.config['MYSQL_DATABASE_PORT'] = 52000
 
 mysql.init_app(app)
 
+def execute(query):
+    try:
+        conn=mysql.connect()
+        cursor=conn.cursor()
+        cursor.execute(query)
+        result=cursor.fetchall()
+        conn.commit()
+        cursor.close()
+        conn.close()
+        return result
+    except:
+        raise
 
 def token_required(f):
     @wraps(f)
@@ -52,10 +64,7 @@ def file_extension(filename):
 def get_follow_count(userid):
     query="select count(*) from users.follow where followed='{0}'".format(userid)
     try:
-        conn=mysql.connect()
-        cursor=conn.cursor()
-        cursor.execute(query)
-        result=cursor.fetchall()
+        result=execute(query)
         return result[0][0]
     except:
         return 0
@@ -64,10 +73,7 @@ def get_follow_count(userid):
 def get_following_count(userid):
     query="select count(*) from users.follow where follower='{0}'".format(userid)
     try:
-        conn=mysql.connect()
-        cursor=conn.cursor()
-        cursor.execute(query)
-        result=cursor.fetchall()
+        result=execute(query)
         return result[0][0]
     except:
         return 0
@@ -80,124 +86,85 @@ def hi():
 @app.route('/api/v1.0/update/bio', methods=['GET', 'POST'])
 @token_required
 def update_bio(userid):
-    data = request.get_json(force=True)
+    data = request.get_json()
     if not data or "new_bio" not in data:
         return jsonify({"message": "error:data required"}), 401
     time = datetime.datetime.now()
     time = time.strftime('%Y-%m-%d %H:%M:%S')
     query = "update users.user set bio='{0}',dateupdated='{1}' where userid='{2}'".format(
         data['new_bio'], time, userid)
-    conn = mysql.connect()
-    cursor = conn.cursor()
-    cursor.execute(query)
-    result = cursor.fetchall()
-    conn.commit()
-    cursor.close()
-    conn.close()
+    execute(query)
     return jsonify({"message": "success!"}), 200
 
 
 @app.route('/api/v1.0/update/name', methods=['GET', 'POST'])
 @token_required
 def update_name(userid):
-    data = request.get_json(force=True)
+    data = request.get_json()
     if not data or "new_firstname" not in data or "new_lastname" not in data:
         return jsonify({"message": "error:data required"}), 401
     time = datetime.datetime.now()
     time = time.strftime('%Y-%m-%d %H:%M:%S')
     query = "update users.user set firstname='{0}',lastname='{1}',dateupdated='{2}' where userid='{3}'".format(
         data['new_firstname'], data['new_lastname'], time, userid)
-    conn = mysql.connect()
-    cursor = conn.cursor()
-    cursor.execute(query)
-    result = cursor.fetchall()
-    conn.commit()
-    cursor.close()
-    conn.close()
+    execute(query)
     return jsonify({"message": "success!"}), 200
 
 
 @app.route('/api/v1.0/update/phoneno', methods=['GET', 'POST'])
 @token_required
 def update_phone(userid):
-    data = request.get_json(force=True)
+    data = request.get_json()
     if not data or "new_phoneno" not in data:
         return jsonify({"message": "error:data required"}), 401
     query = "select count(*) from users.user where phoneno='{0}'".format(
         data['new_phoneno'])
-    conn = mysql.connect()
-    cursor = conn.cursor()
-    cursor.execute(query)
-    result = cursor.fetchall()
-    cursor.close()
+    result=execute(query)
     if result[0][0] != 0:
         return jsonify({"message": "error:phoneno already exists"}), 401
     time = datetime.datetime.now()
     time = time.strftime('%Y-%m-%d %H:%M:%S')
     query = "update users.user set phoneno='{0}',verified='0',phonetoken='{1}',dateupdated='{2}' where userid='{3}'".format(
         data['new_phoneno'], uuid.uuid4(), time, userid)
-    cursor = conn.cursor()
-    cursor.execute(query)
-    result = cursor.fetchall()
-    conn.commit()
-    cursor.close()
-    conn.close()
+    execute(query)
     return jsonify({"message": "success!"}), 200
 
 
 @app.route('/api/v1.0/update/email', methods=['GET', 'POST'])
 @token_required
 def update_email(userid):
-    data = request.get_json(force=True)
+    data = request.get_json()
     if not data or "new_email" not in data:
         return jsonify({"message": "error:data required"}), 401
     query = "select count(*) from users.user where email='{0}'".format(
         data['new_email'])
-    conn = mysql.connect()
-    cursor = conn.cursor()
-    cursor.execute(query)
-    result = cursor.fetchall()
-    cursor.close()
+    result=execute(query)
     if result[0][0] != 0:
         return jsonify({"message": "error:email already exists"}), 401
     time = datetime.datetime.now()
     time = time.strftime('%Y-%m-%d %H:%M:%S')
     query = "update users.user set email='{0}',verified='0',token='{1}',dateupdated='{2}' where userid='{3}'".format(
         data['new_email'], uuid.uuid4(), time, userid)
-    cursor = conn.cursor()
-    cursor.execute(query)
-    result = cursor.fetchall()
-    conn.commit()
-    cursor.close()
-    conn.close()
+    execute(query)
     return jsonify({"message": "success!"}), 200
 
 
 @app.route('/api/v1.0/update/username', methods=['GET', 'POST'])
 @token_required
 def updatedetails(userid):
-    data = request.get_json(force=True)
+    data = request.get_json()
     if not data or "new_username" not in data:
         return jsonify({"message": "error:data required"}), 401
     query = "select count(*) from users.user where username='{0}'".format(
         data['new_username'])
-    conn = mysql.connect()
-    cursor = conn.cursor()
-    cursor.execute(query)
-    result = cursor.fetchall()
-    cursor.close()
+    result=execute(query)
     if result[0][0] != 0:
         return jsonify({"message": "error:username already exists"}), 401
     time = datetime.datetime.now()
     time = time.strftime('%Y-%m-%d %H:%M:%S')
     query = "update users.user set username='{0}',dateupdated='{1}' where userid='{2}'".format(
         data['new_username'], time, userid)
-    cursor = conn.cursor()
-    cursor.execute(query)
-    result = cursor.fetchall()
-    conn.commit()
-    cursor.close()
-    conn.close()
+    execute(query)
     return jsonify({"message": "success!"}), 200
 
 
@@ -211,26 +178,19 @@ def update(userid):
         return jsonify({"message": "error:file required"}), 401
     if file and allowed_file(file.filename):
         os.remove(os.path.join(app.config['USERS_FOLDER'], userid+".jpg"))
+        filename = str(userid)+'.jpg'
         if file_extension(file.filename) == "png":
             im = Image.open(request.files['file'].stream)
             rgb_im = im.convert('RGB')
-            filename = str(userid)+'.jpg'
             rgb_im.save(os.path.join(
                 app.config['USERS_FOLDER'], filename), "JPEG")
         else:
-            filename = str(userid)+'.jpg'
             file.save(os.path.join(app.config['USERS_FOLDER'], filename))
         time = datetime.datetime.now()
         time = time.strftime('%Y-%m-%d %H:%M:%S')
         query = "update users.user set dateupdated='{0}' where userid='{1}'".format(
             time, userid)
-        conn = mysql.connect()
-        cursor = conn.cursor()
-        cursor.execute(query)
-        result = cursor.fetchall()
-        conn.commit()
-        cursor.close()
-        conn.close()
+        execute(query)
         return jsonify({"message": "success!"}), 200
     else:
         return jsonify({"message": "error:unsuccessfull"}), 401
@@ -248,13 +208,7 @@ def delpic(userid):
     time = time.strftime('%Y-%m-%d %H:%M:%S')
     query = "update users.user set dateupdated='{0}' where userid='{1}'".format(
         time, userid)
-    conn = mysql.connect()
-    cursor = conn.cursor()
-    cursor.execute(query)
-    result = cursor.fetchall()
-    conn.commit()
-    cursor.close()
-    conn.close()
+    execute(query)
     return jsonify({"message": "success!"}), 200
 
 
@@ -269,11 +223,7 @@ def getmyprofilepic(userid):
 @token_required
 def getmydetails(userid):
     query = "select * from users.user where userid='{0}'".format(userid)
-    conn = mysql.connect()
-    cursor = conn.cursor()
-    cursor.execute(query)
-    result = cursor.fetchall()
-    cursor.close()
+    result=execute(query)
     username = result[0][1]
     firstname = result[0][2]
     lastname = result[0][3]
@@ -317,22 +267,12 @@ def login():
         return make_response('Could not verify 0', 401, {'WWW-Authenticate': 'Basic realm="Login required"'})
     query = "select count(*) from users.user where username='{0}'".format(
         auth.username)
-    conn = mysql.connect()
-    cursor = conn.cursor()
-    cursor.execute(query)
-    result = cursor.fetchall()
-    cursor.close()
-    conn.close()
+    result=execute(query)
     if result[0][0] != 1:
         return make_response('Could not verify 1', 401, {'WWW-Authenticate': 'Basic realm="Login required"'})
     query = "select userid,password from users.user where username='{0}'".format(
         auth.username)
-    conn = mysql.connect()
-    cursor = conn.cursor()
-    cursor.execute(query)
-    result = cursor.fetchall()
-    cursor.close()
-    conn.close()
+    result=execute(query)
     password = result[0][1]
     if check_password_hash(password, auth.password):
         token = jwt.encode({"userid": result[0][0], "username": auth.username, "exp": datetime.datetime.now(
@@ -343,7 +283,7 @@ def login():
 
 @app.route('/api/v1.0/createaccount', methods=['GET', 'POST'])
 def create_user():
-    data = request.get_json(force=True)
+    data = request.get_json()
     print(data)
     if data is None:
         return jsonify({"message": "error:data required"}), 401
@@ -351,12 +291,7 @@ def create_user():
         username = data['username']
         query = "select count(*) from users.user where username='{0}'".format(
             username)
-        conn = mysql.connect()
-        cursor = conn.cursor()
-        cursor.execute(query)
-        result = cursor.fetchall()
-        cursor.close()
-        conn.close()
+        result=execute(query)
         if result[0][0] != 0:
             return jsonify({"message": "error:username already exists"}), 401
     else:
@@ -400,13 +335,7 @@ def create_user():
     query = "insert into users.user(userid,username,firstname,lastname,password,email,phoneno,token,phonetoken,public,datecreated,dateupdated,bio) \
           values('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}','{9}','{10}','{11}','{12}');".format(userid, username, firstname, lastname, hashed_password, email, phoneno,
                                                                                                             token, phonetoken, public, time, time, bio)
-    conn = mysql.connect()
-    cursor = conn.cursor()
-    cursor.execute(query)
-    result = cursor.fetchall()
-    cursor.close()
-    conn.commit()
-    conn.close()
+    execute(query)
     filename = str(userid)+".jpg"
     defaultfile = 'defualt.jpg'
     shutil.copy(os.path.join(app.config['USERS_FOLDER'], defaultfile), os.path.join(

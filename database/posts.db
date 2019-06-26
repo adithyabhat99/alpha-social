@@ -5,7 +5,6 @@ create table posts.post
     userid varchar(255) not null,
     date datetime not null,
     dateupdated datetime not null,
-    filename varchar(255) not null,
     location varchar(128),
     public tinyint(1) not null default '0',
     caption varchar(255)
@@ -29,7 +28,7 @@ create table posts.tags
 create table posts.likes
 (
     postid varchar(255) not null,
-    likeid int(11) auto_increment primary key,
+    likeid varchar(255) not null unique key,
     userid varchar(255) not null,
     mainuser varchar(255) not null,
     date datetime not null,

@@ -25,7 +25,6 @@ to find ip address of a container-
 sudo docker inspect containerid | grep IP
 
 
-
 nginx-
 docker pull nginx
 https://blog.docker.com/2015/04/tips-for-deploying-nginx-official-image-with-docker/

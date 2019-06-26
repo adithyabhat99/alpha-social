@@ -24,6 +24,18 @@ app.config['MYSQL_DATABASE_PORT'] = 52000
 
 mysql.init_app(app)
 
+def execute(query):
+    try:
+        conn=mysql.connect()
+        cursor=conn.cursor()
+        cursor.execute(query)
+        result=cursor.fetchall()
+        conn.commit()
+        cursor.close()
+        conn.close()
+        return result
+    except:
+        raise
 
 def token_required(f):
     @wraps(f)
@@ -46,12 +58,7 @@ def file_extension(filename):
 def get_userid(username):
     try:
         query="select userid from users.user where username='{0}'".format(username)
-        conn=mysql.connect()
-        cursor=conn.cursor()
-        cursor.execute(query)
-        data=cursor.fetchall()
-        cursor.close()
-        conn.close()
+        data=execute(query)
         userid=data[0][0]
         return userid
     except:
@@ -60,12 +67,7 @@ def get_userid(username):
 def get_username(userid):
     try:
         query="select username from users.user where userid='{0}'".format(userid)
-        conn=mysql.connect()
-        cursor=conn.cursor()
-        cursor.execute(query)
-        result=cursor.fetchall()
-        cursor.close()
-        conn.close()
+        result=execute(query)
     except:
         return None
     try:
@@ -77,11 +79,10 @@ def get_username(userid):
 def follows_or_not(userid,userid2):
     if userid is None or userid2 is None:
         return False
+    if userid==userid2:
+        return True
     query="select count(*) from users.follow where follower='{0}' and followed='{1}'".format(userid,userid2)
-    conn=mysql.connect()
-    cursor=conn.cursor()
-    cursor.execute(query)
-    result=cursor.fetchall()
+    result=execute(query)
     if result[0][0]==0:
         return False
     return True
@@ -89,10 +90,7 @@ def follows_or_not(userid,userid2):
 def get_follow_count(userid):
     query="select count(*) from users.follow where followed='{0}'".format(userid)
     try:
-        conn=mysql.connect()
-        cursor=conn.cursor()
-        cursor.execute(query)
-        result=cursor.fetchall()
+        result=execute(query)
         return result[0][0]
     except:
         return 0
@@ -101,10 +99,7 @@ def get_follow_count(userid):
 def get_following_count(userid):
     query="select count(*) from users.follow where follower='{0}'".format(userid)
     try:
-        conn=mysql.connect()
-        cursor=conn.cursor()
-        cursor.execute(query)
-        result=cursor.fetchall()
+        result=execute(query)
         return result[0][0]
     except:
         return 0
@@ -112,22 +107,16 @@ def get_following_count(userid):
 def public_or_not(userid):
     try:
         query="select count(*) from users.user where userid='{0}' and public='1'".format(userid)
-        conn=mysql.connect()
-        cursor=conn.cursor()
-        cursor.execute(query)
-        result=cursor.fetchall()
-        cursor.close()
-        conn.close()
+        result=execute(query)
         return result[0][0]
     except:
         return 0
-
 
 @app.route('/')
 def hi():
     return jsonify({"mesage": "hi! welcome to follow server"}), 200
 
-@app.route('/api/v1.0/follow/user/<userid2>',methods=['GET','POST'])
+@app.route('/api/v1.0/follow/user/<userid2>')
 @token_required
 def follow(userid,userid2):
     time=datetime.datetime.now()
@@ -136,24 +125,13 @@ def follow(userid,userid2):
     if public_or_not(userid2):
         try:
             query="insert into users.follow(follower,followed,date,id) values('{0}','{1}','{2}','{3}')".format(userid,userid2,time,id)
-            conn=mysql.connect()
-            cursor=conn.cursor()
-            cursor.execute(query)
-            cursor.close()
-            conn.commit()
-            conn.close()
+            execute(query)
             return jsonify({"message":"success!"}),200
         except:
             return jsonify({"message":"error:could not follow {0}".format(userid2)}),401
     try:
-        conn=mysql.connect()
         query="insert into users.followre(follower,followed,date,id) values('{0}','{1}','{2}','{3}')".format(userid,userid2,time,id)
-        cursor=conn.cursor()
-        cursor.execute(query)
-        data=cursor.fetchall()
-        cursor.close()
-        conn.commit()
-        conn.close()
+        execute(query)
         return jsonify({"message":"success!"}),200
     except:
         return jsonify({"message":"error:could not follow {0}".format(userid2)}),401
@@ -162,13 +140,8 @@ def follow(userid,userid2):
 @token_required
 def approve(userid,userid2):
     try:
-        conn=mysql.connect()
         query="delete from users.followre where follower='{0}' and followed='{1}'".format(userid2,userid)
-        cursor=conn.cursor()
-        cursor.execute(query)
-        data=cursor.fetchall()
-        cursor.close()
-        conn.commit()
+        execute(query)
     except:
         return jsonify({"message":"error:could not approve {0}".format(userid2)}),401
     try:
@@ -176,12 +149,7 @@ def approve(userid,userid2):
         time=time.strftime('%Y-%m-%d %H:%M:%S')
         id=userid2+'+'+userid
         query="insert into users.follow(follower,followed,date,id) values('{0}','{1}','{2}','{3}')".format(userid2,userid,time,id)
-        cursor=conn.cursor()
-        cursor.execute(query)
-        data=cursor.fetchall()
-        cursor.close()
-        conn.commit()
-        conn.close()
+        execute(query)
         return jsonify({"message":"success!"}),200
     except:
         return jsonify({"message":"error:could not approve {0}".format(userid2)}),401
@@ -193,12 +161,7 @@ def get_follow_list(userid,userid2):
         return jsonify({"message":"error:not authorised"}),401
     query="select follower from users.follow where followed='{0}' order by date".format(userid2)
     try:
-        conn=mysql.connect()
-        cursor=conn.cursor()
-        cursor.execute(query)
-        result=cursor.fetchall()
-        cursor.close()
-        conn.close()
+        result=execute(query)
     except:
         return jsonify({"message":"error:could not fetch results"}),401
     data=[]
@@ -216,12 +179,7 @@ def get_follower_list(userid,userid2):
         return jsonify({"message":"error:not authorised"}),401
     query="select followed from users.follow where follower='{0}' order by date".format(userid2)
     try:
-        conn=mysql.connect()
-        cursor=conn.cursor()
-        cursor.execute(query)
-        result=cursor.fetchall()
-        cursor.close()
-        conn.close()
+        result=execute(query)
     except:
         return jsonify({"message":"error:could not fetch results"}),401
     data=[]
@@ -237,12 +195,7 @@ def get_follower_list(userid,userid2):
 def unfollow(userid,userid2):
     try:
         query="delete from users.follow where followed='{0}' and follower='{1}'".format(userid2,userid)
-        conn=mysql.connect()
-        cursor=conn.cursor()
-        cursor.execute(query)
-        conn.commit()
-        cursor.close()
-        conn.close()
+        execute(query)
         return jsonify({"message":"success!"}),200
     except:
         return jsonify({"message":"error:could not unfollow"}),401
@@ -252,12 +205,7 @@ def unfollow(userid,userid2):
 def disapprove(userid,userid2):
     try:
         query="delete from users.followre where follower='{0}' and followed='{1}'".format(userid2,userid)
-        conn=mysql.connect()
-        cursor=conn.cursor()
-        cursor.execute(query)
-        conn.commit()
-        cursor.close()
-        conn.close()
+        execute(query)
         return jsonify({"message":"success!"}),200
     except:
         return jsonify({"message":"error:could not unfollow"}),401
@@ -267,10 +215,7 @@ def disapprove(userid,userid2):
 def get_request_list(userid):
     try:
         query="select * from users.followre where followed='{0}'".format(userid)
-        conn=mysql.connect()
-        cursor=conn.cursor()
-        cursor.execute(query)
-        result=cursor.fetchall()
+        result=execute(query)
         data=[]
         for users in result:
             col={}
@@ -286,12 +231,7 @@ def get_request_list(userid):
 def removefollower(userid,userid2):
     try:
         query="delete from users.follow where follower='{0}' and following='{1}'".format(userid2,userid)
-        conn=mysql.connect()
-        cursor=conn.cursor()
-        cursor.execute(query)
-        conn.commit()
-        cursor.close()
-        conn.close()
+        execute(query)
         return jsonify({"message":"success!"}),200
     except:
         return jsonify({"message":"error:could not remove follower"}),401
@@ -301,42 +241,27 @@ def removefollower(userid,userid2):
 def mute(userid,userid2):
     try:
         query="update users.follow set muted='1' where follower='{0}' and following='{1}'".format(userid2,userid)
-        conn=mysql.connect()
-        cursor=conn.cursor()
-        cursor.execute(query)
-        conn.commit()
-        cursor.close()
-        conn.close()
+        execute(query)
         return jsonify({"message":"success!"}),200
     except:
         return jsonify({"message":"error:could not mute"}),401
 
 @app.route('/api/v1.0/reportuser/<userid2>')
 @token_required
-def mute(userid,userid2):
+def report(userid,userid2):
     try:
-        query="insert into users.reports(userid,reportedby) values('{0}','{1}')".format(userid2,userid)
-        conn=mysql.connect()
-        cursor=conn.cursor()
-        cursor.execute(query)
-        conn.commit()
-        cursor.close()
-        conn.close()
+        query=" users.reports(userid,reportedby) values('{0}','{1}')".format(userid2,userid)
+        execute(query)
         return jsonify({"message":"success!"}),200
     except:
-        return jsonify({"message":"error:could not mute"}),401
+        return jsonify({"message":"error:could not report"}),401
 
 #token not required
 @app.route('/api/v1.0/getdetails/<userid2>')
 def getdetails(userid2):
     query="select firstname,lastname,bio,username from users.user where userid='{0}'".format(userid2)
     try:
-        conn=mysql.connect()
-        cursor=conn.cursor()
-        cursor.execute(query)
-        result=cursor.fetchall()
-        cursor.close()
-        conn.close()
+        result=execute(query)
         firstname=result[0][0]
         lastname=result[0][1]
         bio=result[0][2]
@@ -369,12 +294,7 @@ def get_profile(userid2):
 def get_username_api(userid):
     try:
         query="select username from users.user where userid='{0}'".format(userid)
-        conn=mysql.connect()
-        cursor=conn.cursor()
-        cursor.execute(query)
-        result=cursor.fetchall()
-        cursor.close()
-        conn.close()
+        result=execute(query)
     except:
         return jsonify({"message":"error"}),401
     try:
