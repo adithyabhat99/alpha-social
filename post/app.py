@@ -54,10 +54,8 @@ def token_required(f):
         return f(data["userid"], *args, **kwargs)
     return decorated
 
-
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
 
 def file_extension(filename):
     return filename.rsplit('.', 1)[1]
@@ -78,23 +76,6 @@ def get_like_count(postid):
     except:
         return None
 
-def get_like_userids(postid,num):
-    #for first 10 likes num=0,for next 10 likes num=1 and so on...
-    base=10*num
-    top=base+10
-    query="select userid from posts.likes where postid='{0}' order by date desc limit {1},{2}".format(postid,base,top)
-    try:
-        result=execute(query)
-    except:
-        return None
-    data=[]
-    for like in result:
-        liked={}
-        liked["userid"]=like[0]
-        data.append(liked)
-    return data
-
-
 def get_comment_count(postid):
     query="select count(*) from posts.comments where postid='{0}'".format(postid)
     try:
@@ -103,16 +84,52 @@ def get_comment_count(postid):
     except:
         return None
 
-def get_comments(postid,num):
-    #for first 10 comments num=0,for next 10 comments num=1 and so on...
-    base=10*num
+@app.route('/')
+def hello():
+    return jsonify({"message": "Hi,welcome to post server!"})
+
+@app.route('/api/v1.0/getlikeslist/<postid>/<num>')
+@token_required
+def get_like_userids(userid,postid,num):
+    #for first 20 likes num=0,for next 20 likes num=1 and so on...
+    userid2=get_userid_for(postid)
+    URL="http://localhost:7800/api/v1.0/followsornot/{0}/{1}".format(userid,userid2)
+    r=requests.get(url=URL)
+    result=r.json()
+    if result["message"]=="false":
+        return jsonify({"message":"error:not authorised"}),401
+    base=10*int(num)
     top=base+10
+    query="select userid from posts.likes where postid='{0}' order by date desc limit {1},{2}".format(postid,base,top)
+    try:
+        result=execute(query)
+    except:
+        return None
+    likes=[]
+    for like in result:
+        liked={}
+        liked["userid"]=like[0]
+        likes.append(liked)
+    return jsonify({"list":likes}),200
+
+@app.route('/api/v1.0/getcommentslist/<postid>/<num>')
+@token_required
+def get_comments(userid,postid,num):
+    #for first 20 comments num=0,for next 10 comments num=1 and so on...
+    userid2=get_userid_for(postid)
+    URL="http://localhost:7800/api/v1.0/followsornot/{0}/{1}".format(userid,userid2)
+    r=requests.get(url=URL)
+    result=r.json()
+    if result["message"]=="false":
+        return jsonify({"message":"error:not authorised"}),401
+    base=20*int(num)
+    top=base+20
     query="select * from posts.comments where postid='{0}' order by date desc limit {1},{2}".format(postid,base,top)
     try:
         result=execute(query)
     except:
         return None
-    data=[]
+    comments=[]
     for comment in result:
         commentd={}
         commentd["postid"]=comment[0]
@@ -120,16 +137,13 @@ def get_comments(postid,num):
         commentd["userid"]=comment[2]
         commentd["date"]=comment[4]
         commentd["message"]=comment[5]
-        data.append(commentd)
-    return data
+        comments.append(commentd)
+    return jsonify({"list":comments}),200
 
-@app.route('/')
-def hello():
-    return jsonify({"message": "Hi,welcome to post server!"})
-
-@app.route('/api/v1.0/getpost/image/<userid2>/<postid>')
+@app.route('/api/v1.0/getpost/image/<postid>')
 @token_required
-def get_post(userid,userid2,postid):
+def get_post(userid,postid):
+    userid2=get_userid_for(postid)
     URL="http://localhost:7800/api/v1.0/followsornot/{0}/{1}".format(userid,userid2)
     r=requests.get(url=URL)
     result=r.json()
@@ -150,8 +164,8 @@ def get_post(userid,userid2,postid):
 @token_required
 def getpostfor(userid,userid2):
     URL="http://localhost:7800/api/v1.0/followsornot/{0}/{1}".format(userid,userid2)
-    r=requests.get(url=URL)
-    result=r.json()
+    response=requests.get(url=URL)
+    result=response.json()
     data=[]
     if result["message"]=="false":
         query="select * from posts.post where userid='{0}' and public='1'".format(userid2)
@@ -159,6 +173,7 @@ def getpostfor(userid,userid2):
             result=execute(query)
             for post in result:
                 d={}
+                userliked=execute("select count(*) from posts.likes where postid='{0}' and userid='{1}'".format(post[0],userid))[0][0]
                 d["postid"]=post[0]
                 d["userid"]=post[1]
                 d["date"]=post[2]
@@ -168,6 +183,7 @@ def getpostfor(userid,userid2):
                 d["caption"]=post[6]
                 d["likes"]=get_like_count(post[0])
                 d["comments"]=get_comment_count(post[0])
+                d["userliked"]=userliked
                 data.append(d)
             return jsonify({"list":data}),200
         except:
@@ -302,19 +318,15 @@ def updatepost(userid, postid):
 def deletepost(userid, postid):
     query = "delete from posts.post where userid='{0}' and postid='{1}'".format(
         userid, postid)
-    query2="delete from posts.likes where postid='{0}' and mainuser='{1}'".format(postid,userid)
-    query3="delete from posts.comments where postid='{0}' and mainuser='{1}'".format(postid,userid)
     try:
         execute(query)
-        execute(query2)
-        execute(query3)
         os.remove(os.path.join(app.config['POSTS_FOLDER'], postid+".jpg"))
     except:
         return jsonify({"message": "unsuccessfull"}), 401
     return jsonify({"message": "success!"})
 
 
-@app.route('/api/v1.0/post/image', methods=['GET', 'POST'])
+@app.route('/api/v1.0/post/image', methods=['GET','POST'])
 @token_required
 def post(userid):
     if "file" not in request.files:

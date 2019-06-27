@@ -154,12 +154,15 @@ def approve(userid,userid2):
     except:
         return jsonify({"message":"error:could not approve {0}".format(userid2)}),401
 
-@app.route('/api/v1.0/getfollowerslist/<userid2>')
+@app.route('/api/v1.0/getfollowerslist/<userid2>/<num>')
 @token_required
-def get_follow_list(userid,userid2):
+#num=0 for first 20 followers num=1 for 20-40 and so on..
+def get_follow_list(userid,userid2,num):
     if userid!=userid2 and not follows_or_not(userid,userid2):
         return jsonify({"message":"error:not authorised"}),401
-    query="select follower from users.follow where followed='{0}' order by date".format(userid2)
+    base=int(num)*20
+    top=base+20
+    query="select follower from users.follow where followed='{0}' order by date desc limit {1},{2}".format(userid2,base,top)
     try:
         result=execute(query)
     except:
@@ -310,6 +313,8 @@ def get_userid_api(username):
     if userid is None:
         return jsonify({"message":"error:user not found"}),401
     return jsonify({"userid":userid,"username":username}),200
+
+# Do for get userids for name,username etc.
 
 #token not required
 @app.route('/api/v1.0/followsornot/<userid1>/<userid2>')
