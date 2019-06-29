@@ -1,5 +1,7 @@
 ## All urls start with /api/v1.0/
 
+**For testing, recommended to use postman**
+
 ### /createaccount
 
 - POST method
@@ -25,18 +27,6 @@
 - A 'x-access-token' will be sent,for all other features,this token is compulsory in header
 
 ## All the following requests must have 'x-access-token' and corresponding auth token in header
-
-### /getmydetails
-
-- GET method to get details of user
-
-### /getmyprofilepic
-
-- GET method
-
-### /deleteprofilepic
-
-- DELETE method
 
 ### /update/profilepic
 
@@ -72,6 +62,18 @@
 - POST method
 - Header: Content-Type:application/json
 - "new_bio" should be sent as raw json
+
+### /getmydetails
+
+- GET method to get details of the user
+
+### /getmyprofilepic
+
+- GET method to get profile picture of the user
+
+### /deleteprofilepic
+
+- DELETE method to delete profile picture of the user
 
 ### /getdetails
 
@@ -240,7 +242,7 @@ http://url/api/v1.0/delete/post?postid=absd-sdsd-sdds-werr
 }
 ```
 
-``` To view a post,like,comment etc. the requesting user must be following the other user ```
+## To view a post,like,comment etc. the requesting user must be following the other user 
 
 ### /like/post
 
