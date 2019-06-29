@@ -1,6 +1,6 @@
 ## All urls start with /api/v1.0/
 
-**For testing, recommended to use postman**
+**For testing, recommended to use _postman_ **
 
 ### /createaccount
 
