@@ -10,7 +10,7 @@
 ## Technologies used
 - Flask api 
 - MySQL database
-- Used docker to manage services 
+- Docker to manage services 
 
 ## Future work
 - Front end client
