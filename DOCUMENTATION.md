@@ -28,6 +28,44 @@
 
 ## All the following requests must have 'x-access-token' and corresponding auth token in header
 
+### /gethome
+
+- GET method to get list of home page posts for the user
+- Send 'num' as argument,by default it is 0
+- num=0 for first 20 posts num=1 for 20-40 and so on..
+- Example
+```
+http://url/api/v1.0/gethome?num=0
+```
+
+### /discover/latest
+
+- GET method to get list of latest public posts for the day
+- Send 'num' as argument,by default it is 0
+- num=0 for first 20 posts num=1 for 20-40 and so on..
+- Example
+```
+http://url/api/v1.0/discover/latest?num=0
+```
+
+### /discover/trending
+
+- GET method to get list of trending public posts by likes for the day
+- Send 'num' as argument,by default it is 0
+- num=0 for first 20 posts num=1 for 20-40 and so on..
+- Example
+```
+http://url/api/v1.0/discover/trending?num=0
+```
+
+### /search
+
+- GET method to search a user by username or name
+- Either 'firstname' and 'lastname' must be sent as argument
+- Send 'num' as argument,by default it is 0
+- num=0 for first 20 users num=1 for 20-40 and so on..
+- to search based on username,there is already a method called "/getuserid" (here username is unique,so multiple people with same username is not possible)
+
 ### /update/profilepic
 
 - POST method
@@ -175,7 +213,6 @@ http://url/api/v1.0/unfollow?userid2=absd-sdsd-sdds-werr
 http://url/api/v1.0/disapprove?userid2=absd-sdsd-sdds-werr
 ```
 
-
 ### /removefollower
 
 - GET method to remove follower
@@ -321,45 +358,6 @@ http://url/api/v1.0/getcommentslist?postid=absd-sdsd-sdds-werr&num=0
 ```
 http://url/api/v1.0/getlikeslist?postid=absd-sdsd-sdds-werr&num=0
 ```
-
-### /gethome
-
-- GET method to get list of home page posts for the user
-- Send 'num' as argument,by default it is 0
-- num=0 for first 20 posts num=1 for 20-40 and so on..
-- Example
-```
-http://url/api/v1.0/gethome?num=0
-```
-
-### /discover/latest
-
-- GET method to get list of latest public posts for the day
-- Send 'num' as argument,by default it is 0
-- num=0 for first 20 posts num=1 for 20-40 and so on..
-- Example
-```
-http://url/api/v1.0/discover/latest?num=0
-```
-
-### /discover/trending
-
-- GET method to get list of trending public posts by likes for the day
-- Send 'num' as argument,by default it is 0
-- num=0 for first 20 posts num=1 for 20-40 and so on..
-- Example
-```
-http://url/api/v1.0/discover/trending?num=0
-```
-
-### /search
-
-- GET method to search a user by username or name
-- Either 'firstname' and 'lastname' must be sent as argument
-- Send 'num' as argument,by default it is 0
-- num=0 for first 20 users num=1 for 20-40 and so on..
-- to search based on username,there is already a method called "/getuserid" (here username is unique,so multiple people with same username is not possible)
-
 
 ## Following DOES NOT REQUIRE auth token in header
 
