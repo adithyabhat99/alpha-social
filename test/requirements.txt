@@ -1,3 +1,0 @@
-Flask
-flask-restful
-flask-mysql
