@@ -161,7 +161,7 @@ def get_comments(userid):
     return jsonify({"list": comments}), 200
 
 
-@app.route('/api/v1.0/getpost/image')
+@app.route('/api/v1.0/getpost')
 @token_required
 def get_post(userid):
     postid = request.args.get('postid')
@@ -240,7 +240,7 @@ def getpostfor(userid):
         return jsonify({"message": "error"}), 401
 
 
-@app.route('/api/v1.0/delete/comment')
+@app.route('/api/v1.0/delete/comment',methods=['DELETE'])
 @token_required
 def delete_comment(userid):
     commentid = request.args.get('commentid')
@@ -253,7 +253,7 @@ def delete_comment(userid):
     return jsonify({"message": "success!"}), 200
 
 
-@app.route('/api/v1.0/delete/like')
+@app.route('/api/v1.0/delete/like',methods=['DELETE'])
 @token_required
 def delete_like(userid):
     postid = request.args.get('postid')
@@ -266,7 +266,7 @@ def delete_like(userid):
     return jsonify({"message": "success!"})
 
 
-@app.route('/api/v1.0/comment/post/image', methods=['GET', 'POST'])
+@app.route('/api/v1.0/comment/post', methods=['POST'])
 @token_required
 def commet_post(userid):
     postid = request.args.get('postid')
@@ -288,7 +288,7 @@ def commet_post(userid):
         return jsonify({"message": "error"}), 401
 
 
-@app.route('/api/v1.0/like/post/image')
+@app.route('/api/v1.0/like/post')
 @token_required
 def like_post(userid):
     postid = request.args.get('postid')
@@ -307,7 +307,7 @@ def like_post(userid):
         return jsonify({"message": "error"}), 401
 
 
-@app.route('/api/v1.0/update/post/image', methods=['POST'])
+@app.route('/api/v1.0/update/post', methods=['POST'])
 @token_required
 def updatepost(userid):
     postid = request.args.get('postid')
@@ -360,7 +360,7 @@ def updatepost(userid):
         return jsonify({"message": "error:unsuccessfull"}), 401
 
 
-@app.route('/api/v1.0/delete/post/image')
+@app.route('/api/v1.0/delete/post',methods=['DELETE'])
 @token_required
 def deletepost(userid):
     postid = request.args.get('postid')
@@ -374,7 +374,7 @@ def deletepost(userid):
     return jsonify({"message": "success!"})
 
 
-@app.route('/api/v1.0/post/image', methods=['POST'])
+@app.route('/api/v1.0/post', methods=['POST'])
 @token_required
 def post(userid):
     if "file" not in request.files:

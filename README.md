@@ -2,7 +2,7 @@
 - This is a social media website which is accessible through the rest api 
 - It is divided into multiple microservices 
 - Profile service will have api to create account,changing details (like email,phonenumber,name etc.)  of user, uploading or deleting profile picture, etc.
-- Profile service also serves as authentication server,on sending username and password it returns a jwt token which can be saved as a cookie and sent with every other request
+- Profile service also serves as authentication server,on sending username and password it returns a jwt Auth token which can be saved as a cookie and sent with every other request
 - Follow service has features like follow any user,approve follow requests,get user details etc.
 - Posts service to post images,like,comment,delete post,get post and many other features
 - Home and search gives a user's home page contents,trending public posts,latest public posts etc.
@@ -18,22 +18,8 @@
 - Event driven services like notifications,emails,SMS etc.
 - Messaging service 
 
-# API Documentation
+# Documentation and LICENCE
 
-### All urls start with /api/v1.0/
-
-> /createaccount
-- POST method
-- All the details in JSON format
-- Example
-```
-{
-    "username":"adithya",
-    "password":"123",
-    "firstname":"a",
-    "lastname":"b",
-    "email":"adithyabhatoct@gmail.com"
-}
-```
+[ API Documentation ](DOCUMENTATION.md)
 
 ## Any help is appreciated!

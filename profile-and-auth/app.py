@@ -242,7 +242,7 @@ def update(userid):
         return jsonify({"message": "error:unsuccessfull"}), 401
 
 
-@app.route('/api/v1.0/update/deleteprofilepic', methods=['DELETE'])
+@app.route('/api/v1.0/deleteprofilepic', methods=['DELETE'])
 @token_required
 def delpic(userid):
     os.remove(os.path.join(app.config['USERS_FOLDER'], userid+".jpg"))
@@ -330,7 +330,7 @@ def login():
         if check_password_hash(password, auth.password):
             token = jwt.encode({"userid": result[0][0], "username": auth.username, "exp": datetime.datetime.now(
             )+datetime.timedelta(days=7)}, app.secret_key, algorithm='HS256')
-            return jsonify({'token': token.decode('UTF-8')}), 200
+            return jsonify({'x-access-token': token.decode('UTF-8')}), 200
         return make_response('Could not verify 2', 401, {'WWW-Authenticate': 'Basic realm="Login required"'})
     except:
         return make_response('Could not verify 2', 401, {'WWW-Authenticate': 'Basic realm="Login required"'})
@@ -400,9 +400,9 @@ def create_user():
     except:
         return jsonify({"message": "error"}), 401
 
-# token not required
 @app.route('/api/v1.0/getdetails')
-def getdetails():
+@token_required
+def getdetails(userid):
     userid2 = request.args.get('userid2')
     query = "select firstname,lastname,bio,username from users.user where userid='{0}'".format(
         userid2)
@@ -427,22 +427,22 @@ def getdetails():
     }
     return jsonify(data), 200
 
-# token not required
 @app.route('/api/v1.0/getprofilepic')
-def get_profile():
+@token_required
+def get_profile(userid):
     userid2 = request.args.get('userid2')
     if userid2 is None:
         return jsonify({"message": "error:user not found"})
     filename = os.path.join(app.config['USERS_FOLDER'], userid2+".jpg")
     return send_file(filename, mimetype='image/gif'), 200
 
-# token not required
 @app.route('/api/v1.0/getusername')
-def get_username_api():
-    userid = request.args.get('userid')
+@token_required
+def get_username_api(userid):
+    userid2 = request.args.get('userid2')
     try:
         query = "select username from users.user where userid='{0}'".format(
-            userid)
+            userid2)
         result = execute(query)
     except:
         return jsonify({"message": "error"}), 401
@@ -450,20 +450,20 @@ def get_username_api():
         username = result[0][0]
     except:
         return jsonify({"message": "error:user not found"}), 401
-    return jsonify({"userid": userid, "username": username}), 200
+    return jsonify({"userid": userid2, "username": username}), 200
 
-# token not required
 @app.route('/api/v1.0/getuserid')
-def get_userid_api():
+@token_required
+def get_userid_api(userid):
     username = request.args.get('username')
-    userid = get_userid(username)
+    userid2 = get_userid(username)
     if userid is None:
         return jsonify({"message": "error:user not found"}), 401
-    return jsonify({"userid": userid, "username": username}), 200
+    return jsonify({"userid": userid2, "username": username}), 200
 
-# token not required
 # search by name
 @app.route('/api/v1.0/search')
+@token_required
 def search():
     num = request.args.get('num', default=0, type=int)
     firstname = request.args.get('firstname', defualt=None, trype=str)

@@ -156,7 +156,7 @@ def follow(userid):
         return jsonify({"message": "error:could not follow {0}".format(userid2)}), 401
 
 
-@app.route('/api/v1.0/follow/approve')
+@app.route('/api/v1.0/approve')
 @token_required
 def approve(userid):
     userid2 = request.args.get('userid2')
