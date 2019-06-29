@@ -307,7 +307,7 @@ def getmydetails(userid):
             "followerscount": followerscount,
             "followingcount": followingcount
         }
-        return jsonify(details), 200
+        return jsonify({"details":details}), 200
     except:
         return jsonify({"message": "error"}), 401
 
