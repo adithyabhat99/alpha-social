@@ -21,6 +21,6 @@
 # Documentation and License
 
 ### [API Documentation](./DOCUMENTATION.md)
-### [LICENSE](./LICENSE.md)
+### [LICENSE](./LICENSE)
 
 ## Any help is appreciated!
