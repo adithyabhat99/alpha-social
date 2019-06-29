@@ -12,14 +12,15 @@
 - MySQL database 
 - Used docker to manage services 
 
-# Future work
+## Future work
 - Front end client
 - Reverse proxy server
 - Event driven services like notifications,emails,SMS etc.
 - Messaging service 
 
-# Documentation and LICENCE
+# Documentation and License
 
 ### [API Documentation](./DOCUMENTATION.md)
+### [LICENSE](./LICENSE.md)
 
 ## Any help is appreciated!
