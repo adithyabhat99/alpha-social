@@ -20,6 +20,6 @@
 
 # Documentation and LICENCE
 
-[ API Documentation ](DOCUMENTATION.md)
+[API Documentation](./DOCUMENTATION.md)
 
 ## Any help is appreciated!
