@@ -425,7 +425,7 @@ def getdetails(userid):
         "followerscount": followers,
         "followingcount": following
     }
-    return jsonify(data), 200
+    return jsonify({"details":data}), 200
 
 @app.route('/api/v1.0/getprofilepic')
 @token_required
