@@ -18,4 +18,22 @@
 - Event driven services like notifications,emails,SMS etc.
 - Messaging service 
 
+# API Documentation
+
+### All urls start with /api/v1.0/
+
+> /createaccount
+- POST method
+- All the details in JSON format
+- Example
+```
+{
+    "username":"adithya",
+    "password":"123",
+    "firstname":"a",
+    "lastname":"b",
+    "email":"adithyabhatoct@gmail.com"
+}
+```
+
 ## Any help is appreciated!
