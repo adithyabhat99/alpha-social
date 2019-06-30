@@ -99,6 +99,20 @@ def hello():
     return jsonify({"message": "Hi,welcome to post server!"})
 
 
+@app.route('/deleteallposts',methods=['DELETE'])
+@token_required
+def deleteallposts(userid):
+    query="select postid from posts.post where userid='{0}'".format(userid)
+    try:
+        result=execute(query)
+        for post in result:
+            os.remove(os.path.join(app.config['POSTS_FOLDER'],post[0]+'.jpg'))
+        query="delete from posts.post where userid='{0}'".format(userid)
+        execute(query)
+        return jsonify({"message":"success"}),200
+    except:
+        return jsonify({"message":"error"})
+
 @app.route('/api/v1.0/getlikeslist')
 @token_required
 def get_like_userids(userid):

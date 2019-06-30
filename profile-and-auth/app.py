@@ -461,6 +461,22 @@ def get_userid_api(userid):
         return jsonify({"message": "error:user not found"}), 401
     return jsonify({"userid": userid2, "username": username}), 200
 
+@app.route('/api/v1.0/deletemyaccount',methods=['DELETE'])
+@token_required
+def delte_account(userid):
+    query="delete from users.user where userid='{0}'".format(userid)
+    os.remove(os.path.join(app.config['USERS_FOLDER'],userid+'.jpg'))
+    URL="http://localhost:7900/delteallposts"
+    try:
+        execute(query)
+        r=request.delete(url=URL,headers={"x-access-token":request.headers["x-access-token"]})
+        if r["message"]=="success":
+            return jsonify({"message":"success"}),200
+        else:
+            return jsonify({"message": "error"}), 401
+    except:
+        return jsonify({"message": "error"}), 401
+
 # search by name
 @app.route('/api/v1.0/search')
 @token_required
