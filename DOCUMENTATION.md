@@ -359,6 +359,11 @@ http://url/api/v1.0/getcommentslist?postid=absd-sdsd-sdds-werr&num=0
 http://url/api/v1.0/getlikeslist?postid=absd-sdsd-sdds-werr&num=0
 ```
 
+### /deletemyaccount
+
+- DELETE request to delete account
+- All details and posts of the user will be deleted
+
 ## Following DOES NOT REQUIRE auth token in header
 
 ### /followsornot
