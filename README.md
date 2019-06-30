@@ -7,6 +7,9 @@
 - Posts service to post images,like,comment,delete post,get post and many other features
 - Home and search gives a user's home page contents,trending public posts,latest public posts etc.
 
+![Architecture](https://user-images.githubusercontent.com/30742449/60392061-ac607100-9b19-11e9-9fb6-02a6a43cfbae.jpg)
+
+
 ## Technologies used
 - Flask api 
 - MySQL database
