@@ -113,14 +113,14 @@ def deleteallposts(userid):
     except:
         return jsonify({"message":"error"})
 
-@app.route('/api/v1.0/getlikeslist')
+@app.route('/getlikeslist')
 @token_required
 def get_like_userids(userid):
     postid = request.args.get('postid')
     num = request.args.get('num', default=0, type=int)
     # for first 20 likes num=0,for next 20 likes num=1 and so on...
     userid2 = get_userid_for(postid)
-    URL = "http://localhost:7800/api/v1.0/followsornot?userid1={0}&userid2={1}".format(
+    URL = "http://localhost/api/v1.0/f/followsornot?userid1={0}&userid2={1}".format(
         userid, userid2)
     r = requests.get(url=URL)
     result = r.json()
@@ -142,14 +142,14 @@ def get_like_userids(userid):
     return jsonify({"list": likes}), 200
 
 
-@app.route('/api/v1.0/getcommentslist')
+@app.route('/getcommentslist')
 @token_required
 def get_comments(userid):
     postid = request.args.get('postid')
     num = request.args.get('num', default=0, type=int)
     # for first 20 comments num=0,for next 10 comments num=1 and so on...
     userid2 = get_userid_for(postid)
-    URL = "http://localhost:7800/api/v1.0/followsornot?userid1={0}&userid2={1}".format(
+    URL = "http://localhost/api/v1.0/f/followsornot?userid1={0}&userid2={1}".format(
         userid, userid2)
     r = requests.get(url=URL)
     result = r.json()
@@ -175,12 +175,12 @@ def get_comments(userid):
     return jsonify({"list": comments}), 200
 
 
-@app.route('/api/v1.0/getpost')
+@app.route('/getpost')
 @token_required
 def get_post(userid):
     postid = request.args.get('postid')
     userid2 = get_userid_for(postid)
-    URL = "http://localhost:7800/api/v1.0/followsornot?userid1={0}&userid2={1}".format(
+    URL = "http://localhost/api/v1.0/ffollowsornot?userid1={0}&userid2={1}".format(
         userid, userid2)
     r = requests.get(url=URL)
     result = r.json()
@@ -198,12 +198,12 @@ def get_post(userid):
     return send_file(filename, mimetype='image/gif')
 
 
-@app.route('/api/v1.0/getpostsfor/user')
+@app.route('/getpostsfor/user')
 @token_required
 def getpostfor(userid):
     num = request.args.get('num', default=0, type=int)
     userid2 = request.args.get('userid2')
-    URL = "http://localhost:7800/api/v1.0/followsornot?userid1={0}&userid2={1}".format(
+    URL = "http://localhost/api/v1.0/ffollowsornot?userid1={0}&userid2={1}".format(
         userid, userid2)
     response = requests.get(url=URL)
     result = response.json()
@@ -254,7 +254,7 @@ def getpostfor(userid):
         return jsonify({"message": "error"}), 401
 
 
-@app.route('/api/v1.0/delete/comment',methods=['DELETE'])
+@app.route('/delete/comment',methods=['DELETE'])
 @token_required
 def delete_comment(userid):
     commentid = request.args.get('commentid')
@@ -267,7 +267,7 @@ def delete_comment(userid):
     return jsonify({"message": "success!"}), 200
 
 
-@app.route('/api/v1.0/delete/like',methods=['DELETE'])
+@app.route('/delete/like',methods=['DELETE'])
 @token_required
 def delete_like(userid):
     postid = request.args.get('postid')
@@ -280,7 +280,7 @@ def delete_like(userid):
     return jsonify({"message": "success!"})
 
 
-@app.route('/api/v1.0/comment/post', methods=['POST'])
+@app.route('/comment/post', methods=['POST'])
 @token_required
 def commet_post(userid):
     postid = request.args.get('postid')
@@ -302,7 +302,7 @@ def commet_post(userid):
         return jsonify({"message": "error"}), 401
 
 
-@app.route('/api/v1.0/like/post')
+@app.route('/like/post',methods=['PUT'])
 @token_required
 def like_post(userid):
     postid = request.args.get('postid')
@@ -321,7 +321,7 @@ def like_post(userid):
         return jsonify({"message": "error"}), 401
 
 
-@app.route('/api/v1.0/update/post', methods=['POST'])
+@app.route('/update/post', methods=['PUT'])
 @token_required
 def updatepost(userid):
     postid = request.args.get('postid')
@@ -374,7 +374,7 @@ def updatepost(userid):
         return jsonify({"message": "error:unsuccessfull"}), 401
 
 
-@app.route('/api/v1.0/delete/post',methods=['DELETE'])
+@app.route('/delete/post',methods=['DELETE'])
 @token_required
 def deletepost(userid):
     postid = request.args.get('postid')
@@ -388,7 +388,7 @@ def deletepost(userid):
     return jsonify({"message": "success!"})
 
 
-@app.route('/api/v1.0/post', methods=['POST'])
+@app.route('/post', methods=['POST'])
 @token_required
 def post(userid):
     if "file" not in request.files:

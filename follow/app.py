@@ -132,7 +132,7 @@ def hi():
     return jsonify({"mesage": "hi! welcome to follow server"}), 200
 
 
-@app.route('/api/v1.0/follow/user')
+@app.route('/follow/user',methods=['PUT'])
 @token_required
 def follow(userid):
     userid2 = request.args.get('userid2')
@@ -156,7 +156,7 @@ def follow(userid):
         return jsonify({"message": "error:could not follow {0}".format(userid2)}), 401
 
 
-@app.route('/api/v1.0/approve')
+@app.route('/approve',methods=['PUT'])
 @token_required
 def approve(userid):
     userid2 = request.args.get('userid2')
@@ -178,7 +178,7 @@ def approve(userid):
         return jsonify({"message": "error:could not approve {0}".format(userid2)}), 401
 
 
-@app.route('/api/v1.0/getfollowerslist')
+@app.route('/getfollowerslist')
 @token_required
 # num=0 for first 20 followers num=1 for 20-40 and so on..
 def get_follow_list(userid):
@@ -203,7 +203,7 @@ def get_follow_list(userid):
     return jsonify({"list": data}), 200
 
 
-@app.route('/api/v1.0/getfollowinglist')
+@app.route('/getfollowinglist')
 @token_required
 def get_follower_list(userid):
     userid2 = request.args.get('userid2')
@@ -224,7 +224,7 @@ def get_follower_list(userid):
     return jsonify({"list": data}), 200
 
 
-@app.route('/api/v1.0/unfollow')
+@app.route('/unfollow',methods=["DELETE"])
 @token_required
 def unfollow(userid):
     userid2 = request.args.get('userid2')
@@ -237,7 +237,7 @@ def unfollow(userid):
         return jsonify({"message": "error:could not unfollow"}), 401
 
 
-@app.route('/api/v1.0/disapprove')
+@app.route('/disapprove',methods=['DELETE'])
 @token_required
 def disapprove(userid):
     userid2 = request.args.get('userid2')
@@ -250,7 +250,7 @@ def disapprove(userid):
         return jsonify({"message": "error:could not unfollow"}), 401
 
 
-@app.route('/api/v1.0/getrequestlist')
+@app.route('/getrequestlist')
 @token_required
 def get_request_list(userid):
     try:
@@ -268,7 +268,7 @@ def get_request_list(userid):
         return jsonify({"message": "error:could not fetch results"}), 401
 
 
-@app.route('/api/v1.0/removefollower')
+@app.route('/removefollower',methods=['DELETE'])
 @token_required
 def removefollower(userid):
     userid2 = request.args.get('userid2')
@@ -281,7 +281,7 @@ def removefollower(userid):
         return jsonify({"message": "error:could not remove follower"}), 401
 
 
-@app.route('/api/v1.0/muteuser')
+@app.route('/muteuser',methods=['PUT'])
 @token_required
 def mute(userid):
     userid2 = request.args.get('userid2')
@@ -294,7 +294,7 @@ def mute(userid):
         return jsonify({"message": "error:could not mute"}), 401
 
 
-@app.route('/api/v1.0/reportuser')
+@app.route('/reportuser',methods=['POST'])
 @token_required
 def report(userid):
     userid2 = request.args.get('userid2')
@@ -308,7 +308,7 @@ def report(userid):
 
 
 # token not required
-@app.route('/api/v1.0/followsornot')
+@app.route('/followsornot')
 def follows_or_not_api():
     userid1 = request.args.get('userid1')
     userid2 = request.args.get('userid2')

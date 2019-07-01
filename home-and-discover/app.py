@@ -82,12 +82,12 @@ def hello():
     return jsonify({"message": "Hi,welcome to home page server!"})
 
 
-@app.route('/api/v1.0/gethome')
+@app.route('/gethome')
 @token_required
 def home(userid):
     num = request.args.get('num', default=0, type=int)
     # num=0 for first 20 posts,num=1 for 20 to 40 and so on...
-    URL = 'http://localhost:7800/api/v1.0/getfollowinglist?userid2={0}'.format(
+    URL = 'http://localhost/api/v1.0/f/getfollowinglist?userid2={0}'.format(
         userid)
     response = requests.get(
         url=URL, headers={"x-access-token": request.headers["x-access-token"]})
@@ -126,7 +126,7 @@ def home(userid):
     return jsonify({"list": data}), 200
 
 
-@app.route('/api/v1.0/discover/latest')
+@app.route('/discover/latest')
 @token_required
 def discover(userid):
     num = request.args.get('num', default=0, type=int)
@@ -154,7 +154,7 @@ def discover(userid):
         return jsonify({"message": "error"}), 401
 
 
-@app.route('/api/v1.0/discover/trending')
+@app.route('/discover/trending')
 @token_required
 def discover_trending(userid):
     num = request.args.get('num', default=0, type=int)

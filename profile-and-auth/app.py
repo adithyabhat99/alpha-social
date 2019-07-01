@@ -100,7 +100,7 @@ def hi():
     return jsonify({"mesage": "hi! welcome to profile server"}), 200
 
 
-@app.route('/api/v1.0/update/bio', methods=['POST'])
+@app.route('/update/bio',methods=['PUT'])
 @token_required
 def update_bio(userid):
     data = request.get_json()
@@ -117,7 +117,7 @@ def update_bio(userid):
         return jsonify({"message": "error"}), 401
 
 
-@app.route('/api/v1.0/update/name', methods=['POST'])
+@app.route('/update/name',methods=['PUT'])
 @token_required
 def update_name(userid):
     data = request.get_json()
@@ -134,7 +134,7 @@ def update_name(userid):
         return jsonify({"message": "error"}), 401
 
 
-@app.route('/api/v1.0/update/phoneno', methods=['POST'])
+@app.route('/update/phoneno',methods=['PUT'])
 @token_required
 def update_phone(userid):
     data = request.get_json()
@@ -159,7 +159,7 @@ def update_phone(userid):
         return jsonify({"message": "error"}), 401
 
 
-@app.route('/api/v1.0/update/email', methods=['POST'])
+@app.route('/update/email',methods=['PUT'])
 @token_required
 def update_email(userid):
     data = request.get_json()
@@ -184,7 +184,7 @@ def update_email(userid):
         return jsonify({"message": "error"}), 401
 
 
-@app.route('/api/v1.0/update/username', methods=['POST'])
+@app.route('/update/username',methods=['PUT'])
 @token_required
 def updatedetails(userid):
     data = request.get_json()
@@ -209,7 +209,7 @@ def updatedetails(userid):
         return jsonify({"message": "error"}), 401
 
 
-@app.route('/api/v1.0/update/profilepic', methods=['POST'])
+@app.route('/update/profilepic',methods=['PUT'])
 @token_required
 def update(userid):
     if 'file' not in request.files:
@@ -242,7 +242,7 @@ def update(userid):
         return jsonify({"message": "error:unsuccessfull"}), 401
 
 
-@app.route('/api/v1.0/deleteprofilepic', methods=['DELETE'])
+@app.route('/deleteprofilepic', methods=['DELETE'])
 @token_required
 def delpic(userid):
     os.remove(os.path.join(app.config['USERS_FOLDER'], userid+".jpg"))
@@ -261,14 +261,14 @@ def delpic(userid):
         return jsonify({"message": "error"}), 401
 
 
-@app.route('/api/v1.0/getmyprofilepic', methods=['GET'])
+@app.route('/getmyprofilepic', methods=['GET'])
 @token_required
 def getmyprofilepic(userid):
     filename = os.path.join(app.config['USERS_FOLDER'], userid+".jpg")
     return send_file(filename, mimetype='image/gif')
 
 
-@app.route('/api/v1.0/getmydetails', methods=['GET'])
+@app.route('/getmydetails', methods=['GET'])
 @token_required
 def getmydetails(userid):
     query = "select * from users.user where userid='{0}'".format(userid)
@@ -312,7 +312,7 @@ def getmydetails(userid):
         return jsonify({"message": "error"}), 401
 
 
-@app.route('/api/v1.0/login', methods=['POST'])
+@app.route('/login', methods=['POST'])
 def login():
     auth = request.authorization
     if not auth or not auth.username or not auth.password:
@@ -336,7 +336,7 @@ def login():
         return make_response('Could not verify 2', 401, {'WWW-Authenticate': 'Basic realm="Login required"'})
 
 
-@app.route('/api/v1.0/createaccount', methods=['POST'])
+@app.route('/createaccount', methods=['POST'])
 def create_user():
     data = request.get_json()
     print(data)
@@ -400,7 +400,7 @@ def create_user():
     except:
         return jsonify({"message": "error"}), 401
 
-@app.route('/api/v1.0/getdetails')
+@app.route('/getdetails')
 @token_required
 def getdetails(userid):
     userid2 = request.args.get('userid2')
@@ -427,7 +427,7 @@ def getdetails(userid):
     }
     return jsonify({"details":data}), 200
 
-@app.route('/api/v1.0/getprofilepic')
+@app.route('/getprofilepic')
 @token_required
 def get_profile(userid):
     userid2 = request.args.get('userid2')
@@ -436,7 +436,7 @@ def get_profile(userid):
     filename = os.path.join(app.config['USERS_FOLDER'], userid2+".jpg")
     return send_file(filename, mimetype='image/gif'), 200
 
-@app.route('/api/v1.0/getusername')
+@app.route('/getusername')
 @token_required
 def get_username_api(userid):
     userid2 = request.args.get('userid2')
@@ -452,7 +452,7 @@ def get_username_api(userid):
         return jsonify({"message": "error:user not found"}), 401
     return jsonify({"userid": userid2, "username": username}), 200
 
-@app.route('/api/v1.0/getuserid')
+@app.route('/getuserid')
 @token_required
 def get_userid_api(userid):
     username = request.args.get('username')
@@ -461,12 +461,12 @@ def get_userid_api(userid):
         return jsonify({"message": "error:user not found"}), 401
     return jsonify({"userid": userid2, "username": username}), 200
 
-@app.route('/api/v1.0/deletemyaccount',methods=['DELETE'])
+@app.route('/deletemyaccount',methods=['DELETE'])
 @token_required
 def delte_account(userid):
     query="delete from users.user where userid='{0}'".format(userid)
     os.remove(os.path.join(app.config['USERS_FOLDER'],userid+'.jpg'))
-    URL="http://localhost:7900/delteallposts"
+    URL="http://localhost/api/v1.0/p/delteallposts"
     try:
         execute(query)
         r=request.delete(url=URL,headers={"x-access-token":request.headers["x-access-token"]})
@@ -478,7 +478,7 @@ def delte_account(userid):
         return jsonify({"message": "error"}), 401
 
 # search by name
-@app.route('/api/v1.0/search')
+@app.route('/search')
 @token_required
 def search():
     num = request.args.get('num', default=0, type=int)
