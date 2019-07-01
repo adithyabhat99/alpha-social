@@ -16,7 +16,7 @@ https://askubuntu.com/questions/938700/how-do-i-install-docker-on-ubuntu-16-04-l
 
 Go to each directory(home-and-discover,post,follow,profile-and-auth) and then -
 
-``` chmod +x start.sh ```
+``` chmod +x start.sh ``` <br />
 ``` ./start.sh ```
 
 
