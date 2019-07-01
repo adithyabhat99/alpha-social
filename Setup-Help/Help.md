@@ -3,14 +3,14 @@ https://askubuntu.com/questions/938700/how-do-i-install-docker-on-ubuntu-16-04-l
 
 
 ## nginx(make sure that you don't get error in any step)
-``` sudo service apache stop ```
-``` sudo systemctl stop apache ``` (if the above command worked,then no need to execute this command)
-``` sudo apt update && sudo apt install nginx ```
-``` cd ~/alpha-social/Setup-Help/nginx ```
-``` sudo mv default /etc/nginx/sites-available/ ```
-``` sudo rm /etc/nginx/sites-enabled/default ```
-``` sudo ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/ ```
-``` sudo systemctl reload nginx.service ```
+``` sudo service apache stop ``` <br />
+``` sudo systemctl stop apache ``` (if the above command worked,then no need to execute this command) <br />
+``` sudo apt update && sudo apt install nginx ``` <br />
+``` cd ~/alpha-social/Setup-Help/nginx ``` <br />
+``` sudo mv default /etc/nginx/sites-available/ ``` <br />
+``` sudo rm /etc/nginx/sites-enabled/default ``` <br />
+``` sudo ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/ ``` <br />
+``` sudo systemctl reload nginx.service ``` <br />
 
 ## flask
 
