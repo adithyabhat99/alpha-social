@@ -27,8 +27,7 @@ Go to each directory(home-and-discover,post,follow,profile-and-auth) and then -
 ## Users database
 
 ``` 
-sudo docker run --detach --name=usersmysql -p 52000:3306
---env="MYSQL_ROOT_PASSWORD=123654654" mysql/mysql-server:5.6 
+sudo docker run --detach --name=usersmysql -p 52000:3306 --env="MYSQL_ROOT_PASSWORD=123654654" mysql/mysql-server:5.6 
 ```
 (If the container already exists,then ``` sudo docker start <container-id> ``` )
 
