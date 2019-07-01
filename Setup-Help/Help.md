@@ -89,6 +89,6 @@ or
 
 ### Removing untagged image
 
-** Before running this make sure that both usermysql and postsmysql docker containers are running **
+**Before running this make sure that both _usermysql_ and _postsmysql_ docker containers are running**
 
 ``` sudo docker ps --filter status=dead --filter status=exited -aq   | sudo xargs docker rm -v ```
