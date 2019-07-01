@@ -16,7 +16,7 @@
 - Docker to manage services 
 
 ## Future work
-- Front end client
+- Front-end client
 - Notifications,emails,SMS etc.
 - Messaging service 
 
