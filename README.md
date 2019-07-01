@@ -17,8 +17,7 @@
 
 ## Future work
 - Front end client
-- Reverse proxy server
-- Event driven services like notifications,emails,SMS etc.
+- Notifications,emails,SMS etc.
 - Messaging service 
 
 # Documentation and License
