@@ -25,5 +25,3 @@
 
 ### [API Documentation](./DOCUMENTATION.md)
 ### [LICENSE](./LICENSE)
-
-## Any help is appreciated!
