@@ -87,9 +87,8 @@ or
 
 ``` sudo docker images -q --filter "dangling=true" | sudo xargs docker rmi -f ```
 
- 
-### Before running this make sure that both usermysql and postsmysql docker containers are running
+### Removing untagged image
 
-Removing untagged image
+** Before running this make sure that both usermysql and postsmysql docker containers are running **
 
 ``` sudo docker ps --filter status=dead --filter status=exited -aq   | sudo xargs docker rm -v ```
