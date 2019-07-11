@@ -35,7 +35,7 @@
 - num=0 for first 20 posts num=1 for 20-40 and so on..
 - Example
 ```
-http://url/api/v1.0/gethome?num=0
+http://url/api/v1.0/h/gethome?num=0
 ```
 
 ### /h/discover/latest
@@ -45,7 +45,7 @@ http://url/api/v1.0/gethome?num=0
 - num=0 for first 20 posts num=1 for 20-40 and so on..
 - Example
 ```
-http://url/api/v1.0/discover/latest?num=0
+http://url/api/v1.0/h/discover/latest?num=0
 ```
 
 ### /h/discover/trending
@@ -55,7 +55,17 @@ http://url/api/v1.0/discover/latest?num=0
 - num=0 for first 20 posts num=1 for 20-40 and so on..
 - Example
 ```
-http://url/api/v1.0/discover/trending?num=0
+http://url/api/v1.0/h/discover/trending?num=0
+```
+
+### /f/suggestions/users
+
+- GET method to get follow suggestions
+- Send 'num' as argument,by default it is 0
+- num=0 for first 20 users num=1 for 20-40 and so on..
+- Example
+```
+http://url/api/v1.0/f/suggestions/users?num=0
 ```
 
 ### /a/search
@@ -72,7 +82,7 @@ http://url/api/v1.0/discover/trending?num=0
 - Send 'username' as argument
 - Example
 ```
-http://url/api/v1.0/getuserid?username=adithya
+http://url/api/v1.0/a/getuserid?username=adithya
 ```
 
 ### /a/update/profilepic
@@ -128,7 +138,7 @@ http://url/api/v1.0/getuserid?username=adithya
 - Send 'userid2' as argument
 - Example
 ```
-http://url/api/v1.0/getdetails?userid2=absd-sdsd-sdds-werr
+http://url/api/v1.0/f/getdetails?userid2=absd-sdsd-sdds-werr
 ```
 
 ### /f/getprofilepic
@@ -137,7 +147,7 @@ http://url/api/v1.0/getdetails?userid2=absd-sdsd-sdds-werr
 - Send 'userid2' as argument
 - Example
 ```
-http://url/api/v1.0/getprofilepic?userid2=absd-sdsd-sdds-werr
+http://url/api/v1.0/f/getprofilepic?userid2=absd-sdsd-sdds-werr
 ```
 
 ### /f/getusername
@@ -146,7 +156,7 @@ http://url/api/v1.0/getprofilepic?userid2=absd-sdsd-sdds-werr
 - Send 'userid2' as argument
 - Example
 ```
-http://url/api/v1.0/getusername?userid2=absd-sdsd-sdds-werr
+http://url/api/v1.0/f/getusername?userid2=absd-sdsd-sdds-werr
 ```
 
 ### /f/follow/user
@@ -155,7 +165,7 @@ http://url/api/v1.0/getusername?userid2=absd-sdsd-sdds-werr
 - Send 'userid2' as argument
 - Example
 ```
-http://url/api/v1.0/follow/user?userid2=absd-sdsd-sdds-werr
+http://url/api/v1.0/f/follow/user?userid2=absd-sdsd-sdds-werr
 ```
 
 ### /f/getrequestlist
@@ -163,7 +173,7 @@ http://url/api/v1.0/follow/user?userid2=absd-sdsd-sdds-werr
 - GET method to get follow request list
 - Example
 ```
-http://url/api/v1.0/getrequestlist
+http://url/api/v1.0/f/getrequestlist
 ```
 
 ### /f/approve
@@ -172,7 +182,7 @@ http://url/api/v1.0/getrequestlist
 - Send 'userid2' as argument
 - Example
 ```
-http://url/api/v1.0/approve?userid2=absd-sdsd-sdds-werr
+http://url/api/v1.0/f/approve?userid2=absd-sdsd-sdds-werr
 ```
 
 ### /f/getfollowerslist
@@ -182,7 +192,7 @@ http://url/api/v1.0/approve?userid2=absd-sdsd-sdds-werr
 - num=0 for first 20 followers num=1 for 20-40 and so on..
 - Example
 ```
-http://url/api/v1.0/getfollowerslist?num=0
+http://url/api/v1.0/f/getfollowerslist?num=0
 ```
 
 ### /f/getfollowinglist
@@ -192,7 +202,7 @@ http://url/api/v1.0/getfollowerslist?num=0
 - Send 'userid2' as argument
 - Example
 ```
-http://url/api/v1.0/getfollowinglist
+http://url/api/v1.0/f/getfollowinglist
 ```
 
 ### /f/unfollow
@@ -201,7 +211,7 @@ http://url/api/v1.0/getfollowinglist
 - Send 'userid2' as argument
 - Example
 ```
-http://url/api/v1.0/unfollow?userid2=absd-sdsd-sdds-werr
+http://url/api/v1.0/f/unfollow?userid2=absd-sdsd-sdds-werr
 ```
 
 ### /f/disapprove
@@ -210,7 +220,7 @@ http://url/api/v1.0/unfollow?userid2=absd-sdsd-sdds-werr
 - Send 'userid2' as argument
 - Example
 ```
-http://url/api/v1.0/disapprove?userid2=absd-sdsd-sdds-werr
+http://url/api/v1.0/f/disapprove?userid2=absd-sdsd-sdds-werr
 ```
 
 ### /f/removefollower
@@ -219,7 +229,7 @@ http://url/api/v1.0/disapprove?userid2=absd-sdsd-sdds-werr
 - Send 'userid2' as argument
 - Example
 ```
-http://url/api/v1.0/removefollower?userid2=absd-sdsd-sdds-werr
+http://url/api/v1.0/f/removefollower?userid2=absd-sdsd-sdds-werr
 ```
 
 ### /f/muteuser
@@ -228,7 +238,7 @@ http://url/api/v1.0/removefollower?userid2=absd-sdsd-sdds-werr
 - Send 'userid2' as argument
 - Example
 ```
-http://url/api/v1.0/muteuser?userid2=absd-sdsd-sdds-werr
+http://url/api/v1.0/f/muteuser?userid2=absd-sdsd-sdds-werr
 ```
 
 ### /f/reportuser
@@ -237,7 +247,7 @@ http://url/api/v1.0/muteuser?userid2=absd-sdsd-sdds-werr
 - Send 'userid2' as argument
 - Example
 ```
-http://url/api/v1.0/reportuser?userid2=absd-sdsd-sdds-werr
+http://url/api/v1.0/f/reportuser?userid2=absd-sdsd-sdds-werr
 ```
 
 ### /p/post
@@ -261,7 +271,7 @@ http://url/api/v1.0/reportuser?userid2=absd-sdsd-sdds-werr
 - Send 'postid' as argument
 - Example
 ```
-http://url/api/v1.0/delete/post?postid=absd-sdsd-sdds-werr
+http://url/api/v1.0/p/delete/post?postid=absd-sdsd-sdds-werr
 ```
 
 ### /p/update/post
@@ -287,7 +297,7 @@ http://url/api/v1.0/delete/post?postid=absd-sdsd-sdds-werr
 - Send 'postid' as argument
 - Example
 ```
-http://url/api/v1.0/like/post?postid=absd-sdsd-sdds-werr
+http://url/api/v1.0/p/like/post?postid=absd-sdsd-sdds-werr
 ```
 
 ### /p/comment/post
@@ -298,7 +308,7 @@ http://url/api/v1.0/like/post?postid=absd-sdsd-sdds-werr
 - Send {"comment":"your message"} as raw json
 - Example
 ```
-http://url/api/v1.0/comment/post?postid=absd-sdsd-sdds-werr
+http://url/api/v1.0/p/comment/post?postid=absd-sdsd-sdds-werr
 ```
 
 ### /p/delete/like
@@ -307,7 +317,7 @@ http://url/api/v1.0/comment/post?postid=absd-sdsd-sdds-werr
 - Send 'postsid' as argument
 - Example
 ```
-http://url/api/v1.0/delete/like?postid=absd-sdsd-sdds-werr
+http://url/api/v1.0/p/delete/like?postid=absd-sdsd-sdds-werr
 ```
 
 ### /p/delete/comment
@@ -316,7 +326,7 @@ http://url/api/v1.0/delete/like?postid=absd-sdsd-sdds-werr
 - Send 'commentid' as argument
 - Example
 ```
-http://url/api/v1.0/delete/comment?commentid=absd-sdsd-sdds-werr
+http://url/api/v1.0/p/delete/comment?commentid=absd-sdsd-sdds-werr
 ```
 
 ### /p/getpostsfor/user
@@ -325,7 +335,7 @@ http://url/api/v1.0/delete/comment?commentid=absd-sdsd-sdds-werr
 - Send 'userid2' as argument
 - Example
 ```
-http://url/api/v1.0/getpostsfor/user?userid=absd-sdsd-sdds-werr
+http://url/api/v1.0/p/getpostsfor/user?userid=absd-sdsd-sdds-werr
 ```
 
 ### /p/getpost
@@ -334,7 +344,7 @@ http://url/api/v1.0/getpostsfor/user?userid=absd-sdsd-sdds-werr
 - Send 'postid' as argument
 - Example
 ```
-http://url/api/v1.0/getpost?postid=absd-sdsd-sdds-werr
+http://url/api/v1.0/p/getpost?postid=absd-sdsd-sdds-werr
 ```
 
 ### /p/getcommentslist
@@ -345,7 +355,7 @@ http://url/api/v1.0/getpost?postid=absd-sdsd-sdds-werr
 - num=0 for first 20 comments num=1 for 20-40 and so on..
 - Example
 ```
-http://url/api/v1.0/getcommentslist?postid=absd-sdsd-sdds-werr&num=0
+http://url/api/v1.0/p/getcommentslist?postid=absd-sdsd-sdds-werr&num=0
 ```
 
 ### /p/getlikeslist
@@ -356,7 +366,7 @@ http://url/api/v1.0/getcommentslist?postid=absd-sdsd-sdds-werr&num=0
 - num=0 for first 20 likes num=1 for 20-40 and so on..
 - Example
 ```
-http://url/api/v1.0/getlikeslist?postid=absd-sdsd-sdds-werr&num=0
+http://url/api/v1.0/p/getlikeslist?postid=absd-sdsd-sdds-werr&num=0
 ```
 
 ### /a/deletemyaccount
@@ -366,11 +376,11 @@ http://url/api/v1.0/getlikeslist?postid=absd-sdsd-sdds-werr&num=0
 
 ## Following DOES NOT REQUIRE auth token in header
 
-### /followsornot
+### /f/followsornot
 
 - GET method to verify whether a user follows other user or not
 - 'userid1' and 'userid2' must be sent as arguments
 - Example
 ```
-http://url/followsornot?userid1=qwer-rewq-tyui-iuyt&userid2=zxcv-vcxz-mnbv-vbnm
+http://url/f/followsornot?userid1=qwer-rewq-tyui-iuyt&userid2=zxcv-vcxz-mnbv-vbnm
 ```
