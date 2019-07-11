@@ -9,9 +9,11 @@ import shutil
 from functools import wraps
 from werkzeug.security import generate_password_hash, check_password_hash
 from PIL import Image
+from flask_cors import CORS, cross_origin
 
 app = Flask(__name__)
 mysql = MySQL(app)
+CORS(app)
 
 app.secret_key = 'adi123secret'
 POSTS_FOLDER = '/mnt/Posts'
@@ -48,11 +50,11 @@ def token_required(f):
         if "x-access-token" in request.headers:
             token = request.headers["x-access-token"]
         if not token:
-            return jsonify({"message": "error:token is missing"}), 401
+            return jsonify({"error": "token is missing"}), 401
         try:
             data = jwt.decode(token, app.secret_key, algorithm='SHA256')
         except:
-            return jsonify({"message": "error:token is invalid"}), 401
+            return jsonify({"error": "token is invalid"}), 401
         return f(data["userid"], *args, **kwargs)
     return decorated
 
@@ -99,19 +101,20 @@ def hello():
     return jsonify({"message": "Hi,welcome to post server!"})
 
 
-@app.route('/deleteallposts',methods=['DELETE'])
+@app.route('/deleteallposts', methods=['DELETE'])
 @token_required
 def deleteallposts(userid):
-    query="select postid from posts.post where userid='{0}'".format(userid)
+    query = "select postid from posts.post where userid='{0}'".format(userid)
     try:
-        result=execute(query)
+        result = execute(query)
         for post in result:
-            os.remove(os.path.join(app.config['POSTS_FOLDER'],post[0]+'.jpg'))
-        query="delete from posts.post where userid='{0}'".format(userid)
+            os.remove(os.path.join(app.config['POSTS_FOLDER'], post[0]+'.jpg'))
+        query = "delete from posts.post where userid='{0}'".format(userid)
         execute(query)
-        return jsonify({"message":"success"}),200
+        return jsonify({"message": "success"}), 200
     except:
-        return jsonify({"message":"error"})
+        return jsonify({"error": "could not delete"})
+
 
 @app.route('/getlikeslist')
 @token_required
@@ -125,7 +128,7 @@ def get_like_userids(userid):
     r = requests.get(url=URL)
     result = r.json()
     if result["message"] == "false":
-        return jsonify({"message": "error:not authorised"}), 401
+        return jsonify({"error": "not authorised"}), 401
     base = 10*num
     top = base+10
     query = "select userid from posts.likes where postid='{0}' order by date desc limit {1},{2}".format(
@@ -133,7 +136,7 @@ def get_like_userids(userid):
     try:
         result = execute(query)
     except:
-        return None
+        return jsonify({"error": "could not fetch data"}), 401
     likes = []
     for like in result:
         liked = {}
@@ -154,7 +157,7 @@ def get_comments(userid):
     r = requests.get(url=URL)
     result = r.json()
     if result["message"] == "false":
-        return jsonify({"message": "error:not authorised"}), 401
+        return jsonify({"error": "not authorised"}), 401
     base = 20*num
     top = base+20
     query = "select * from posts.comments where postid='{0}' order by date desc limit {1},{2}".format(
@@ -162,7 +165,7 @@ def get_comments(userid):
     try:
         result = execute(query)
     except:
-        return None
+        return jsonify({"error": "could not fetch data"}), 401
     comments = []
     for comment in result:
         commentd = {}
@@ -193,7 +196,7 @@ def get_post(userid):
         if result[0][0] == 1:
             return send_file(filename, mimetype='image/gif')
         else:
-            return jsonify({"message": "error:not authorised"}), 401
+            return jsonify({"error": "not authorised"}), 401
     filename = os.path.join(app.config['POSTS_FOLDER'], postid+'.jpg')
     return send_file(filename, mimetype='image/gif')
 
@@ -232,7 +235,7 @@ def getpostfor(userid):
                 data.append(d)
             return jsonify({"list": data}), 200
         except:
-            return jsonify({"message": "error"}), 401
+            return jsonify({"error"""}), 401
     query = "select * from posts.post where userid='{0}' order by date desc limit {1},{2}".format(
         userid2, base, top)
     try:
@@ -251,10 +254,10 @@ def getpostfor(userid):
             data.append(d)
         return jsonify({"list": data}), 200
     except:
-        return jsonify({"message": "error"}), 401
+        return jsonify({"error": "could not get posts"}), 401
 
 
-@app.route('/delete/comment',methods=['DELETE'])
+@app.route('/delete/comment', methods=['DELETE'])
 @token_required
 def delete_comment(userid):
     commentid = request.args.get('commentid')
@@ -263,11 +266,11 @@ def delete_comment(userid):
     try:
         execute(query)
     except:
-        return jsonify({"message": "error"}), 401
+        return jsonify({"error": "could not delete"}), 401
     return jsonify({"message": "success!"}), 200
 
 
-@app.route('/delete/like',methods=['DELETE'])
+@app.route('/delete/like', methods=['DELETE'])
 @token_required
 def delete_like(userid):
     postid = request.args.get('postid')
@@ -276,8 +279,8 @@ def delete_like(userid):
     try:
         execute(query)
     except:
-        return jsonify({"message": "error"}), 401
-    return jsonify({"message": "success!"})
+        return jsonify({"error": "could not delete"}), 401
+    return jsonify({"message": "success!"}), 200
 
 
 @app.route('/comment/post', methods=['POST'])
@@ -286,12 +289,12 @@ def commet_post(userid):
     postid = request.args.get('postid')
     mainuser = get_userid_for(postid)
     if mainuser is None:
-        return jsonify({"message": "error:post/user not found"}), 401
+        return jsonify({"error": "post/user not found"}), 401
     time = datetime.datetime.now()
     time = time.strftime('%Y-%m-%d %H:%M:%S')
     data = request.get_json()
     if "comment" not in data:
-        return jsonify({"message": "error:comment required"}), 401
+        return jsonify({"error": "comment required"}), 401
     comment = data["comment"]
     query = "insert into posts.comments(postid,userid,mainuser,date,message) values('{0}','{1}','{2}','{3}','{4}')".format(
         postid, userid, mainuser, time, comment)
@@ -299,16 +302,16 @@ def commet_post(userid):
         execute(query)
         return jsonify({"message": "success"}), 200
     except:
-        return jsonify({"message": "error"}), 401
+        return jsonify({"error": "could not comment"}), 401
 
 
-@app.route('/like/post',methods=['PUT'])
+@app.route('/like/post', methods=['PUT'])
 @token_required
 def like_post(userid):
     postid = request.args.get('postid')
     mainuser = get_userid_for(postid)
     if mainuser is None:
-        return jsonify({"message": "error:post/user not found"}), 401
+        return jsonify({"error": "post/user not found"}), 401
     time = datetime.datetime.now()
     time = time.strftime('%Y-%m-%d %H:%M:%S')
     likeid = userid+postid
@@ -318,7 +321,7 @@ def like_post(userid):
         execute(query)
         return jsonify({"message": "success"}), 200
     except:
-        return jsonify({"message": "error"}), 401
+        return jsonify({"error": "could not like"}), 401
 
 
 @app.route('/update/post', methods=['PUT'])
@@ -326,12 +329,12 @@ def like_post(userid):
 def updatepost(userid):
     postid = request.args.get('postid')
     if "file" not in request.files:
-        return jsonify({"message": "error:file required"}), 401
+        return jsonify({"error": "file required"}), 401
     file = request.files["file"]
     if file.filename == '':
-        return jsonify({"message": "error:file required"}), 401
+        return jsonify({"error": "file required"}), 401
     if "details" not in request.form:
-        return jsonify({"message": "error:details required"}), 401
+        return jsonify({"error": "details required"}), 401
     # Here details about post will be sent as form data("Content-Type:multipart/form-data")
     # The client must send details as form data where key is "details" and value is the whole json data(i.e. details of post)
     data = request.form["details"]
@@ -367,14 +370,14 @@ def updatepost(userid):
         try:
             execute(query)
         except:
-            return jsonify({"message": "error:unsuccessfull"}), 401
+            return jsonify({"error": "unsuccessfull"}), 401
 
         return jsonify({"message": "success!", "postid": postid}), 200
     else:
-        return jsonify({"message": "error:unsuccessfull"}), 401
+        return jsonify({"error": "unsuccessfull"}), 401
 
 
-@app.route('/delete/post',methods=['DELETE'])
+@app.route('/delete/post', methods=['DELETE'])
 @token_required
 def deletepost(userid):
     postid = request.args.get('postid')
@@ -384,20 +387,20 @@ def deletepost(userid):
         execute(query)
         os.remove(os.path.join(app.config['POSTS_FOLDER'], postid+".jpg"))
     except:
-        return jsonify({"message": "unsuccessfull"}), 401
-    return jsonify({"message": "success!"})
+        return jsonify({"error": "unsuccessfull"}), 401
+    return jsonify({"message": "success!"}), 200
 
 
 @app.route('/post', methods=['POST'])
 @token_required
 def post(userid):
     if "file" not in request.files:
-        return jsonify({"message": "error:file required"}), 401
+        return jsonify({"error": "file required"}), 401
     file = request.files["file"]
     if file.filename == '':
-        return jsonify({"message": "error:file required"}), 401
+        return jsonify({"error": "file required"}), 401
     if "details" not in request.form:
-        return jsonify({"message": "error:details required"}), 401
+        return jsonify({"error": "details required"}), 401
     # Here details about post will be sent as form data("Content-Type:multipart/form-data")
     # The client must send details as form data where key is "details" and value is the whole json data(i.e. details of post)
     data = request.form["details"]
@@ -434,11 +437,11 @@ def post(userid):
         try:
             execute(query)
         except:
-            return jsonify({"message": "error:unsuccessfull"}), 401
+            return jsonify({"error": "unsuccessfull"}), 401
 
         return jsonify({"message": "success!", "postid": postid}), 200
     else:
-        return jsonify({"message": "error:unsuccessfull"}), 401
+        return jsonify({"error": "unsuccessfull"}), 401
 
 
 if __name__ == '__main__':

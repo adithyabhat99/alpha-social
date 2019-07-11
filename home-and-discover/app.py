@@ -9,9 +9,11 @@ import shutil
 from functools import wraps
 from werkzeug.security import generate_password_hash, check_password_hash
 from PIL import Image
+from flask_cors import CORS, cross_origin
 
 app = Flask(__name__)
 mysql = MySQL(app)
+CORS(app)
 
 app.secret_key = 'adi123secret'
 POSTS_FOLDER = '/mnt/Posts'
@@ -68,11 +70,11 @@ def token_required(f):
         if "x-access-token" in request.headers:
             token = request.headers["x-access-token"]
         if not token:
-            return jsonify({"message": "error:token is missing"}), 401
+            return jsonify({"error": "token is missing"}), 401
         try:
             data = jwt.decode(token, app.secret_key, algorithm='SHA256')
         except:
-            return jsonify({"message": "error:token is invalid"}), 401
+            return jsonify({"error": "token is invalid"}), 401
         return f(data["userid"], *args, **kwargs)
     return decorated
 
@@ -122,7 +124,7 @@ def home(userid):
             d["userliked"] = userliked
             data.append(d)
         except:
-            return jsonify({"message": "error"}), 401
+            return jsonify({"error": "could not fetch"}), 401
     return jsonify({"list": data}), 200
 
 
@@ -151,7 +153,7 @@ def discover(userid):
             data.append(d)
         return jsonify({"list": data}), 200
     except:
-        return jsonify({"message": "error"}), 401
+        return jsonify({"error": "could not fetch"}), 401
 
 
 @app.route('/discover/trending')
@@ -187,9 +189,9 @@ def discover_trending(userid):
                 data.append(d)
             return jsonify({"list": data}), 200
         except:
-            return jsonify({"message": "error"}), 401
+            return jsonify({"error": "could not fetch"}), 401
     except:
-        return jsonify({"message": "error"}), 401
+        return jsonify({"error": "could not fetch"}), 401
 
 
 if __name__ == '__main__':

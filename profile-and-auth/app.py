@@ -8,8 +8,10 @@ import shutil
 from functools import wraps
 from werkzeug.security import generate_password_hash, check_password_hash
 from PIL import Image
+from flask_cors import CORS, cross_origin
 
 app = Flask(__name__)
+CORS(app)
 mysql = MySQL(app)
 
 app.secret_key = 'adi123secret'
@@ -58,11 +60,11 @@ def token_required(f):
         if "x-access-token" in request.headers:
             token = request.headers["x-access-token"]
         if not token:
-            return jsonify({"message": "error:token is missing"}), 401
+            return jsonify({"error": "token is missing"}), 401
         try:
             data = jwt.decode(token, app.secret_key, algorithm='SHA256')
         except:
-            return jsonify({"message": "error:token is invalid"}), 401
+            return jsonify({"error": "token is invalid"}), 401
         return f(data["userid"], *args, **kwargs)
     return decorated
 
@@ -97,15 +99,15 @@ def get_following_count(userid):
 
 @app.route('/')
 def hi():
-    return jsonify({"mesage": "hi! welcome to profile server"}), 200
+    return jsonify({"message": "hi! welcome to profile server"}), 200
 
 
-@app.route('/update/bio',methods=['PUT'])
+@app.route('/update/bio', methods=['PUT'])
 @token_required
 def update_bio(userid):
     data = request.get_json()
     if not data or "new_bio" not in data:
-        return jsonify({"message": "error:data required"}), 401
+        return jsonify({"error": "data required"}), 401
     time = datetime.datetime.now()
     time = time.strftime('%Y-%m-%d %H:%M:%S')
     query = "update users.user set bio='{0}',dateupdated='{1}' where userid='{2}'".format(
@@ -114,15 +116,15 @@ def update_bio(userid):
         execute(query)
         return jsonify({"message": "success!"}), 200
     except:
-        return jsonify({"message": "error"}), 401
+        return jsonify({"error": "could not update"}), 401
 
 
-@app.route('/update/name',methods=['PUT'])
+@app.route('/update/name', methods=['PUT'])
 @token_required
 def update_name(userid):
     data = request.get_json()
     if not data or "new_firstname" not in data or "new_lastname" not in data:
-        return jsonify({"message": "error:data required"}), 401
+        return jsonify({"error": "data required"}), 401
     time = datetime.datetime.now()
     time = time.strftime('%Y-%m-%d %H:%M:%S')
     query = "update users.user set firstname='{0}',lastname='{1}',dateupdated='{2}' where userid='{3}'".format(
@@ -131,23 +133,23 @@ def update_name(userid):
         execute(query)
         return jsonify({"message": "success!"}), 200
     except:
-        return jsonify({"message": "error"}), 401
+        return jsonify({"error": "could not update"}), 401
 
 
-@app.route('/update/phoneno',methods=['PUT'])
+@app.route('/update/phoneno', methods=['PUT'])
 @token_required
 def update_phone(userid):
     data = request.get_json()
     if not data or "new_phoneno" not in data:
-        return jsonify({"message": "error:data required"}), 401
+        return jsonify({"error": "data required"}), 401
     query = "select count(*) from users.user where phoneno='{0}'".format(
         data['new_phoneno'])
     try:
         result = execute(query)
         if result[0][0] != 0:
-            return jsonify({"message": "error:phoneno already exists"}), 401
+            return jsonify({"error": "phoneno already exists"}), 401
     except:
-        return jsonify({"message": "error"}), 401
+        return jsonify({"error": "error"}), 401
     time = datetime.datetime.now()
     time = time.strftime('%Y-%m-%d %H:%M:%S')
     query = "update users.user set phoneno='{0}',verified='0',phonetoken='{1}',dateupdated='{2}' where userid='{3}'".format(
@@ -156,23 +158,23 @@ def update_phone(userid):
         execute(query)
         return jsonify({"message": "success!"}), 200
     except:
-        return jsonify({"message": "error"}), 401
+        return jsonify({"error": "coul not update"}), 401
 
 
-@app.route('/update/email',methods=['PUT'])
+@app.route('/update/email', methods=['PUT'])
 @token_required
 def update_email(userid):
     data = request.get_json()
     if not data or "new_email" not in data:
-        return jsonify({"message": "error:data required"}), 401
+        return jsonify({"error": "data required"}), 401
     query = "select count(*) from users.user where email='{0}'".format(
         data['new_email'])
     try:
         result = execute(query)
         if result[0][0] != 0:
-            return jsonify({"message": "error:email already exists"}), 401
+            return jsonify({"error": "email already exists"}), 401
     except:
-        return jsonify({"message": "error"}), 401
+        return jsonify({"error": "error"}), 401
     time = datetime.datetime.now()
     time = time.strftime('%Y-%m-%d %H:%M:%S')
     query = "update users.user set email='{0}',verified='0',token='{1}',dateupdated='{2}' where userid='{3}'".format(
@@ -181,23 +183,23 @@ def update_email(userid):
         execute(query)
         return jsonify({"message": "success!"}), 200
     except:
-        return jsonify({"message": "error"}), 401
+        return jsonify({"error": "could not update"}), 401
 
 
-@app.route('/update/username',methods=['PUT'])
+@app.route('/update/username', methods=['PUT'])
 @token_required
 def updatedetails(userid):
     data = request.get_json()
     if not data or "new_username" not in data:
-        return jsonify({"message": "error:data required"}), 401
+        return jsonify({"error": "data required"}), 401
     query = "select count(*) from users.user where username='{0}'".format(
         data['new_username'])
     try:
         result = execute(query)
         if result[0][0] != 0:
-            return jsonify({"message": "error:username already exists"}), 401
+            return jsonify({"error": "username already exists"}), 401
     except:
-        return jsonify({"message": "error"}), 401
+        return jsonify({"error": "could not update"}), 401
     time = datetime.datetime.now()
     time = time.strftime('%Y-%m-%d %H:%M:%S')
     query = "update users.user set username='{0}',dateupdated='{1}' where userid='{2}'".format(
@@ -206,17 +208,17 @@ def updatedetails(userid):
         execute(query)
         return jsonify({"message": "success!"}), 200
     except:
-        return jsonify({"message": "error"}), 401
+        return jsonify({"error": "could not update"}), 401
 
 
-@app.route('/update/profilepic',methods=['PUT'])
+@app.route('/update/profilepic', methods=['PUT'])
 @token_required
 def update(userid):
     if 'file' not in request.files:
-        return jsonify({"message": "error:file required"}), 401
+        return jsonify({"error": "file required"}), 401
     file = request.files['file']
     if file.filename == '':
-        return jsonify({"message": "error:file required"}), 401
+        return jsonify({"error": "file required"}), 401
     if file and allowed_file(file.filename):
         os.remove(os.path.join(app.config['USERS_FOLDER'], userid+".jpg"))
         filename = str(userid)+'.jpg'
@@ -237,9 +239,9 @@ def update(userid):
             execute(query)
             return jsonify({"message": "success!"}), 200
         except:
-            return jsonify({"message": "error"}), 401
+            return jsonify({"error": "could not update"}), 401
     else:
-        return jsonify({"message": "error:unsuccessfull"}), 401
+        return jsonify({"error": "unsuccessfull"}), 401
 
 
 @app.route('/deleteprofilepic', methods=['DELETE'])
@@ -258,7 +260,7 @@ def delpic(userid):
         execute(query)
         return jsonify({"message": "success!"}), 200
     except:
-        return jsonify({"message": "error"}), 401
+        return jsonify({"error": "could not delete"}), 401
 
 
 @app.route('/getmyprofilepic', methods=['GET'])
@@ -307,9 +309,9 @@ def getmydetails(userid):
             "followerscount": followerscount,
             "followingcount": followingcount
         }
-        return jsonify({"details":details}), 200
+        return jsonify({"details": details}), 200
     except:
-        return jsonify({"message": "error"}), 401
+        return jsonify({"error": "could not fetch"}), 401
 
 
 @app.route('/login', methods=['POST'])
@@ -341,7 +343,7 @@ def create_user():
     data = request.get_json()
     print(data)
     if data is None:
-        return jsonify({"message": "error:data required"}), 401
+        return jsonify({"error": "data required"}), 401
     try:
         if 'username' in data:
             username = data['username']
@@ -349,29 +351,29 @@ def create_user():
                 username)
             result = execute(query)
             if result[0][0] != 0:
-                return jsonify({"message": "error:username already exists"}), 401
+                return jsonify({"error": "username already exists"}), 401
         else:
-            return jsonify({"mesage": "error:username is must"}), 401
+            return jsonify({"error": "username is must"}), 401
         userid = uuid.uuid4()
         if 'password' in data:
             hashed_password = generate_password_hash(
                 data['password'], method='sha256')
         else:
-            return jsonify({"mesage": "error:password is must"}), 401
+            return jsonify({"error": "password is must"}), 401
         if 'firstname' in data:
             firstname = data['firstname']
         else:
-            return jsonify({"mesage": "error:firstname is must"}), 401
+            return jsonify({"error": "firstname is must"}), 401
         if 'lastname' in data:
             lastname = data['lastname']
         else:
-            return jsonify({"mesage": "error:lastname is must"}), 401
+            return jsonify({"error": "lastname is must"}), 401
         if 'bio' in data:
             bio = data['bio']
         else:
             bio = 'null'
         if 'phoneno' not in data and 'email' not in data:
-            return jsonify({"message": "error:email or phoneno is must"}), 401
+            return jsonify({"error": "email or phoneno is must"}), 401
         if 'phoneno' in data:
             phoneno = data['phoneno']
         else:
@@ -398,7 +400,8 @@ def create_user():
             app.config['USERS_FOLDER'], filename))
         return jsonify({"message": "success!"}), 200
     except:
-        return jsonify({"message": "error"}), 401
+        return jsonify({"error": "could not create"}), 401
+
 
 @app.route('/getdetails')
 @token_required
@@ -413,7 +416,7 @@ def getdetails(userid):
         bio = result[0][2]
         username2 = result[0][3]
     except:
-        return jsonify({"message": "error:could not fetch details"}), 401
+        return jsonify({"error": "could not fetch details"}), 401
     followers = get_follow_count(userid2)
     following = get_following_count(userid2)
     data = {
@@ -425,16 +428,18 @@ def getdetails(userid):
         "followerscount": followers,
         "followingcount": following
     }
-    return jsonify({"details":data}), 200
+    return jsonify({"details": data}), 200
+
 
 @app.route('/getprofilepic')
 @token_required
 def get_profile(userid):
     userid2 = request.args.get('userid2')
     if userid2 is None:
-        return jsonify({"message": "error:user not found"})
+        return jsonify({"error": "user not found"})
     filename = os.path.join(app.config['USERS_FOLDER'], userid2+".jpg")
     return send_file(filename, mimetype='image/gif'), 200
+
 
 @app.route('/getusername')
 @token_required
@@ -445,12 +450,13 @@ def get_username_api(userid):
             userid2)
         result = execute(query)
     except:
-        return jsonify({"message": "error"}), 401
+        return jsonify({"error": "could not get"}), 401
     try:
         username = result[0][0]
     except:
-        return jsonify({"message": "error:user not found"}), 401
+        return jsonify({"error": "user not found"}), 401
     return jsonify({"userid": userid2, "username": username}), 200
+
 
 @app.route('/getuserid')
 @token_required
@@ -458,24 +464,26 @@ def get_userid_api(userid):
     username = request.args.get('username')
     userid2 = get_userid(username)
     if userid is None:
-        return jsonify({"message": "error:user not found"}), 401
+        return jsonify({"error": "user not found"}), 401
     return jsonify({"userid": userid2, "username": username}), 200
 
-@app.route('/deletemyaccount',methods=['DELETE'])
+
+@app.route('/deletemyaccount', methods=['DELETE'])
 @token_required
 def delte_account(userid):
-    query="delete from users.user where userid='{0}'".format(userid)
-    os.remove(os.path.join(app.config['USERS_FOLDER'],userid+'.jpg'))
-    URL="http://localhost/api/v1.0/p/delteallposts"
+    query = "delete from users.user where userid='{0}'".format(userid)
+    os.remove(os.path.join(app.config['USERS_FOLDER'], userid+'.jpg'))
+    URL = "http://localhost/api/v1.0/p/delteallposts"
     try:
         execute(query)
-        r=request.delete(url=URL,headers={"x-access-token":request.headers["x-access-token"]})
-        if r["message"]=="success":
-            return jsonify({"message":"success"}),200
+        r = request.delete(url=URL, headers={
+                           "x-access-token": request.headers["x-access-token"]})
+        if r["message"] == "success":
+            return jsonify({"message": "success"}), 200
         else:
-            return jsonify({"message": "error"}), 401
+            return jsonify({"error": "could not delete posts"}), 401
     except:
-        return jsonify({"message": "error"}), 401
+        return jsonify({"error": "could not delete"}), 401
 
 # search by name
 @app.route('/search')
@@ -499,7 +507,7 @@ def search():
                 data.append(d)
             return jsonify({"list": data}), 200
         except:
-            return jsonify({"message": "error"}), 401
+            return jsonify({"error": "could not fetch"}), 401
     elif firstname is not None and lastname is None:
         query = "select userid,username from users.user where firstname'{0}' limit {1},{2}".format(
             firstname, base, top)
@@ -513,7 +521,7 @@ def search():
                 data.append(d)
             return jsonify({"list": data}), 200
         except:
-            return jsonify({"message": "error"}), 401
+            return jsonify({"error": "could not fetch"}), 401
     else:
         return jsonify({"message": "username or name required"}), 401
 
