@@ -131,7 +131,7 @@ def public_or_not(userid):
 
 @app.route('/')
 def hi():
-    return jsonify({"mesage": "hi! welcome to follow server"}), 200
+    return jsonify({"message": "hi! welcome to follow server"}), 200
 
 
 @app.route('/follow/user', methods=['PUT'])
