@@ -103,8 +103,8 @@ def home(userid):
         res.append(i["userid"])
     users = "','".join(map(str, res))
     users = "'"+users+"'"
-    query = "select * from posts.post where userid in ({0}) order by date desc limit {1},{2}".format(
-        users, base, top)
+    query = "select * from posts.post where userid in ('{0}',{1}) order by date desc limit {2},{3}".format(
+        userid,users, base, top)
     result2 = execute(query)
     data = []
     for post in result2:

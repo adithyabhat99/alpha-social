@@ -282,12 +282,12 @@ def getmydetails(userid):
         if result[0][7] == 1:
             email = result[0][5]
         else:
-            #email = None if you add email verificaton feature
+            # email = None if you add email verificaton feature
             email = result[0][5]
         if result[0][10] == 1:
             phoneno = result[0][8]
         else:
-            #phoneno = None if you add phone verification feature
+            # phoneno = None if you add phone verification feature
             phoneno = result[0][8]
         public = result[0][11]
         datecreated = result[0][12]
@@ -377,11 +377,17 @@ def create_user():
         if 'phoneno' not in data and 'email' not in data:
             return jsonify({"error": "email or phoneno is must"}), 401
         if 'phoneno' in data:
-            phoneno = data['phoneno']
+            if data['phoneno'] == "Null":
+                phoneno = '-'+str(userid)[0:10]
+            else:
+                phoneno = data['phoneno']
         else:
             phoneno = '-'+str(userid)[0:10]
         if 'email' in data:
-            email = data['email']
+            if data['email'] == 'Null':
+                email = '-'+str(userid)[0:10]
+            else:
+                email = data['email']
         else:
             email = '-'+str(userid)[0:10]
         if 'public' in data:
@@ -400,12 +406,12 @@ def create_user():
         defaultfile = 'defualt.jpg'
         shutil.copy(os.path.join(app.config['USERS_FOLDER'], defaultfile), os.path.join(
             app.config['USERS_FOLDER'], filename))
-        
+
         token = jwt.encode({"userid": result[0][0], "username": username, "exp": datetime.datetime.now(
         )+datetime.timedelta(days=7)}, app.secret_key)
         return jsonify({'x-access-token': token.decode('UTF-8')}), 200
     except:
-        return jsonify({"error": "could not create"}), 401
+        raise
 
 
 @app.route('/getdetails')
