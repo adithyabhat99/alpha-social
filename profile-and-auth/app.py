@@ -455,7 +455,7 @@ def get_profile(userid):
 @app.route('/getusername')
 @token_required
 def get_username_api(userid):
-    userid2 = request.args.get('userid2')
+    userid2 = request.args.get('userid2',default=userid)
     try:
         query = "select username from users.user where userid='{0}'".format(
             userid2)
@@ -484,7 +484,7 @@ def get_userid_api(userid):
 def delte_account(userid):
     query = "delete from users.user where userid='{0}'".format(userid)
     os.remove(os.path.join(app.config['USERS_FOLDER'], userid+'.jpg'))
-    URL = "http://localhost/api/v1.0/p/delteallposts"
+    URL = "http://localhost/api/v1.0/p/deleteallposts"
     try:
         execute(query)
         r = request.delete(url=URL, headers={

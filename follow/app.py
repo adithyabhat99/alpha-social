@@ -184,7 +184,7 @@ def approve(userid):
 @token_required
 # num=0 for first 20 followers num=1 for 20-40 and so on..
 def get_follow_list(userid):
-    userid2 = request.args.get('userid2')
+    userid2 = request.args.get('userid2',default=userid)
     num = request.args.get('num', default=0, type=int)
     if userid != userid2 and not follows_or_not(userid, userid2):
         return jsonify({"error": "not authorised"}), 401
@@ -208,7 +208,7 @@ def get_follow_list(userid):
 @app.route('/getfollowinglist')
 @token_required
 def get_follower_list(userid):
-    userid2 = request.args.get('userid2')
+    userid2 = request.args.get('userid2',default=userid)
     if userid != userid2 and not follows_or_not(userid, userid2):
         return jsonify({"error": "not authorised"}), 401
     query = "select followed from users.follow where follower='{0}' order by date".format(

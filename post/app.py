@@ -113,7 +113,7 @@ def deleteallposts(userid):
         execute(query)
         return jsonify({"message": "success"}), 200
     except:
-        return jsonify({"error": "could not delete"})
+        return jsonify({"error": "could not delete"}),401
 
 
 @app.route('/getlikeslist')
@@ -183,7 +183,7 @@ def get_comments(userid):
 def get_post(userid):
     postid = request.args.get('postid')
     userid2 = get_userid_for(postid)
-    URL = "http://localhost/api/v1.0/ffollowsornot?userid1={0}&userid2={1}".format(
+    URL = "http://localhost/api/v1.0/f/followsornot?userid1={0}&userid2={1}".format(
         userid, userid2)
     r = requests.get(url=URL)
     result = r.json()
@@ -206,7 +206,7 @@ def get_post(userid):
 def getpostfor(userid):
     num = request.args.get('num', default=0, type=int)
     userid2 = request.args.get('userid2')
-    URL = "http://localhost/api/v1.0/ffollowsornot?userid1={0}&userid2={1}".format(
+    URL = "http://localhost/api/v1.0/f/followsornot?userid1={0}&userid2={1}".format(
         userid, userid2)
     response = requests.get(url=URL)
     result = response.json()

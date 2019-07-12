@@ -132,31 +132,31 @@ http://url/api/v1.0/a/getuserid?username=adithya
 
 - DELETE method to delete profile picture of the user
 
-### /f/getdetails
+### /a/getdetails
 
 - GET method
 - Send 'userid2' as argument
 - Example
 ```
-http://url/api/v1.0/f/getdetails?userid2=absd-sdsd-sdds-werr
+http://url/api/v1.0/a/getdetails?userid2=absd-sdsd-sdds-werr
 ```
 
-### /f/getprofilepic
-
-- GET method
-- Send 'userid2' as argument
-- Example
-```
-http://url/api/v1.0/f/getprofilepic?userid2=absd-sdsd-sdds-werr
-```
-
-### /f/getusername
+### /a/getprofilepic
 
 - GET method
 - Send 'userid2' as argument
 - Example
 ```
-http://url/api/v1.0/f/getusername?userid2=absd-sdsd-sdds-werr
+http://url/api/v1.0/a/getprofilepic?userid2=absd-sdsd-sdds-werr
+```
+
+### /a/getusername
+
+- GET method
+- Send 'userid2' as argument
+- Example
+```
+http://url/api/v1.0/a/getusername?userid2=absd-sdsd-sdds-werr
 ```
 
 ### /f/follow/user
