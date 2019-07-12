@@ -62,7 +62,7 @@ def token_required(f):
         if not token:
             return jsonify({"error": "token is missing"}), 401
         try:
-            data = jwt.decode(token, app.secret_key, algorithm='SHA256')
+            data = jwt.decode(token, app.secret_key)
         except:
             return jsonify({"error": "token is invalid"}), 401
         return f(data["userid"], *args, **kwargs)
@@ -282,11 +282,13 @@ def getmydetails(userid):
         if result[0][7] == 1:
             email = result[0][5]
         else:
-            email = None
+            #email = None if you add email verificaton feature
+            email = result[0][5]
         if result[0][10] == 1:
             phoneno = result[0][8]
         else:
-            phoneno = None
+            #phoneno = None if you add phone verification feature
+            phoneno = result[0][8]
         public = result[0][11]
         datecreated = result[0][12]
         dateupdated = result[0][13]
@@ -318,24 +320,24 @@ def getmydetails(userid):
 def login():
     auth = request.authorization
     if not auth or not auth.username or not auth.password:
-        return make_response('Could not verify 0', 401, {'WWW-Authenticate': 'Basic realm="Login required"'})
-    query = "select count(*) from users.user where username='{0}'".format(
-        auth.username)
+        return jsonify({"error": "could not verify 1"}), 401
+    query = "select count(*) from users.user where username='{0}' or email='{1}' or phoneno='{2}'".format(
+        auth.username, auth.username, auth.username)
     try:
         result = execute(query)
         if result[0][0] != 1:
-            return make_response('Could not verify 1', 401, {'WWW-Authenticate': 'Basic realm="Login required"'})
-        query = "select userid,password from users.user where username='{0}'".format(
-            auth.username)
+            return jsonify({"error": "could not verify 2"}), 401
+        query = "select userid,password from users.user where username='{0}' or email='{1}' or phoneno='{2}'".format(
+            auth.username, auth.username, auth.username)
         result = execute(query)
         password = result[0][1]
         if check_password_hash(password, auth.password):
             token = jwt.encode({"userid": result[0][0], "username": auth.username, "exp": datetime.datetime.now(
-            )+datetime.timedelta(days=7)}, app.secret_key, algorithm='HS256')
+            )+datetime.timedelta(days=7)}, app.secret_key)
             return jsonify({'x-access-token': token.decode('UTF-8')}), 200
-        return make_response('Could not verify 2', 401, {'WWW-Authenticate': 'Basic realm="Login required"'})
+        return jsonify({"error": "could not verify 3"}), 401
     except:
-        return make_response('Could not verify 2', 401, {'WWW-Authenticate': 'Basic realm="Login required"'})
+        return jsonify({"error": "could not verify 4"}), 401
 
 
 @app.route('/createaccount', methods=['POST'])
@@ -398,7 +400,10 @@ def create_user():
         defaultfile = 'defualt.jpg'
         shutil.copy(os.path.join(app.config['USERS_FOLDER'], defaultfile), os.path.join(
             app.config['USERS_FOLDER'], filename))
-        return jsonify({"message": "success!"}), 200
+        
+        token = jwt.encode({"userid": result[0][0], "username": username, "exp": datetime.datetime.now(
+        )+datetime.timedelta(days=7)}, app.secret_key)
+        return jsonify({'x-access-token': token.decode('UTF-8')}), 200
     except:
         return jsonify({"error": "could not create"}), 401
 
@@ -484,6 +489,7 @@ def delte_account(userid):
             return jsonify({"error": "could not delete posts"}), 401
     except:
         return jsonify({"error": "could not delete"}), 401
+
 
 # search by name
 @app.route('/search')
