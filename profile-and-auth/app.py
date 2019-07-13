@@ -44,11 +44,21 @@ def execute(query):
 
 def get_userid(username):
     try:
-        query = "select userid from users.user where username='{0}'".format(
+        query = "select userid from users.user where username='{0}' or email='{0}' or phoneno='{0}'".format(
             username)
         data = execute(query)
         userid = data[0][0]
         return userid
+    except:
+        return None
+
+
+def get_username(userid):
+    try:
+        query = "select username from users.user where userid='{0}'".format(
+            userid)
+        result = execute(query)
+        return result[0][0]
     except:
         return None
 
@@ -327,14 +337,15 @@ def login():
         result = execute(query)
         if result[0][0] != 1:
             return jsonify({"error": "could not verify 2"}), 401
-        query = "select userid,password from users.user where username='{0}' or email='{1}' or phoneno='{2}'".format(
-            auth.username, auth.username, auth.username)
+        query = "select userid,password from users.user where username='{0}' or email='{0}' or phoneno='{0}'".format(
+            auth.username)
         result = execute(query)
+        userid = result[0][0]
         password = result[0][1]
         if check_password_hash(password, auth.password):
             token = jwt.encode({"userid": result[0][0], "username": auth.username, "exp": datetime.datetime.now(
             )+datetime.timedelta(days=7)}, app.secret_key)
-            return jsonify({'x-access-token': token.decode('UTF-8')}), 200
+            return jsonify({'x-access-token': token.decode('UTF-8'), 'userid': userid}), 200
         return jsonify({"error": "could not verify 3"}), 401
     except:
         return jsonify({"error": "could not verify 4"}), 401
@@ -406,10 +417,9 @@ def create_user():
         defaultfile = 'defualt.jpg'
         shutil.copy(os.path.join(app.config['USERS_FOLDER'], defaultfile), os.path.join(
             app.config['USERS_FOLDER'], filename))
-
-        token = jwt.encode({"userid": result[0][0], "username": username, "exp": datetime.datetime.now(
+        token = jwt.encode({"userid": str(userid), "username": username, "exp": datetime.datetime.now(
         )+datetime.timedelta(days=7)}, app.secret_key)
-        return jsonify({'x-access-token': token.decode('UTF-8')}), 200
+        return jsonify({'x-access-token': token.decode('UTF-8'), 'userid': str(userid)}), 200
     except:
         raise
 
@@ -455,18 +465,11 @@ def get_profile(userid):
 @app.route('/getusername')
 @token_required
 def get_username_api(userid):
-    userid2 = request.args.get('userid2',default=userid)
-    try:
-        query = "select username from users.user where userid='{0}'".format(
-            userid2)
-        result = execute(query)
-    except:
-        return jsonify({"error": "could not get"}), 401
-    try:
-        username = result[0][0]
-    except:
-        return jsonify({"error": "user not found"}), 401
-    return jsonify({"userid": userid2, "username": username}), 200
+    userid2 = request.args.get('userid2', default=userid)
+    username = get_username(userid2)
+    if username is None:
+        return jsonify({"error": "could not get username"}), 401
+    return jsonify({"username": username}), 200
 
 
 @app.route('/getuserid')
@@ -474,6 +477,7 @@ def get_username_api(userid):
 def get_userid_api(userid):
     username = request.args.get('username')
     userid2 = get_userid(username)
+    username = get_username(userid)
     if userid is None:
         return jsonify({"error": "user not found"}), 401
     return jsonify({"userid": userid2, "username": username}), 200
