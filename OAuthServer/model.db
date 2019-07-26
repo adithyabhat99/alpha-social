@@ -1,0 +1,11 @@
+create table users.dev(
+    devid varchar(255) not null unique key,
+    appname varchar(255) not null,
+    foreign key(devid) references users.user(userid) on delete cascade
+);
+create table users.apiaccess(
+    userid varchar(255) not null,
+    devid varchar(255) not null,
+    foreign key(userid) references users.user(userid) on delete cascade,
+    foreign key(devid) references users.dev(devid) on delete cascade
+);

@@ -107,9 +107,46 @@ def get_following_count(userid):
         return 0
 
 
+def follows_or_not(userid, userid2):
+    if userid is None or userid2 is None:
+        return False
+    if userid == userid2:
+        return True
+    query = "select count(*) from users.follow where follower='{0}' and followed='{1}'".format(
+        userid, userid2)
+    result = execute(query)
+    if result[0][0] == 0:
+        return False
+    return True
+
+
 @app.route('/')
 def hi():
     return jsonify({"message": "hi! welcome to profile server"}), 200
+
+
+@app.route('/update/password', methods=['PUT'])
+@token_required
+def update_password(userid):
+    data = request.get_json()
+    if not data or "old_password" in data or "new_password" in data:
+        return jsonify({"error": "send old password and new password"}), 401
+    query = "select password from users.user where userid='{0}'".format(userid)
+    try:
+        result = execute(query)
+    except:
+        return jsonify({"error": "could not update"}), 401
+    if not check_password_hash(result[0][0], data["old_password"]):
+        return jsonify({"error": "old password in incorrect"}), 401
+    hashed_password = generate_password_hash(
+        data["new_password"], method='SHA256')
+    query = "update users.user set password='{0}' where userid='{1}'".format(
+        hashed_password, userid)
+    try:
+        execute(query)
+        return jsonify({"message": "success"}), 200
+    except:
+        return jsonify({"error": "could not change password"}), 401
 
 
 @app.route('/update/bio', methods=['PUT'])
@@ -290,19 +327,31 @@ def getmydetails(userid):
         firstname = result[0][2]
         lastname = result[0][3]
         if result[0][7] == 1:
-            email = result[0][5]
+            if result[0][5][0] == "-":
+                email = None
+            else:
+                email = result[0][5]
         else:
             # email = None if you add email verificaton feature
-            email = result[0][5]
+            if result[0][5][0] == "-":
+                email = None
+            else:
+                email = result[0][5]
         if result[0][10] == 1:
-            phoneno = result[0][8]
+            if result[0][8][0] == "-":
+                phoneno = None
+            else:
+                phoneno = result[0][8]
         else:
             # phoneno = None if you add phone verification feature
-            phoneno = result[0][8]
+            if result[0][8][0] == "-":
+                phoneno = None
+            else:
+                phoneno = result[0][8]
         public = result[0][11]
         datecreated = result[0][12]
         dateupdated = result[0][13]
-        if result[0][14] == 'null':
+        if result[0][14] == 'Null':
             bio = None
         else:
             bio = result[0][14]
@@ -434,7 +483,10 @@ def getdetails(userid):
         result = execute(query)
         firstname = result[0][0]
         lastname = result[0][1]
-        bio = result[0][2]
+        if result[0][2] != "Null":
+            bio = result[0][2]
+        else:
+            bio = None
         username2 = result[0][3]
     except:
         return jsonify({"error": "could not fetch details"}), 401
@@ -447,7 +499,8 @@ def getdetails(userid):
         "lastname": lastname,
         "bio": bio,
         "followerscount": followers,
-        "followingcount": following
+        "followingcount": following,
+        "userfollows": follows_or_not(userid2)
     }
     return jsonify({"details": data}), 200
 
@@ -455,7 +508,7 @@ def getdetails(userid):
 @app.route('/getprofilepic')
 @token_required
 def get_profile(userid):
-    userid2 = request.args.get('userid2')
+    userid2 = request.args.get('userid2', default=userid)
     if userid2 is None:
         return jsonify({"error": "user not found"})
     filename = os.path.join(app.config['USERS_FOLDER'], userid2+".jpg")

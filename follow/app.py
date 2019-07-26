@@ -201,6 +201,7 @@ def get_follow_list(userid):
         entry = {}
         entry["userid"] = users[0]
         entry["username"] = get_username(users[0])
+        entry["userfollows"]=follows_or_not(userid,users[0])
         data.append(entry)
     return jsonify({"list": data}), 200
 
@@ -222,6 +223,7 @@ def get_follower_list(userid):
         entry = {}
         entry["userid"] = users[0]
         entry["username"] = get_username(users[0])
+        entry["userfollows"]=follows_or_not(userid,users[0])
         data.append(entry)
     return jsonify({"list": data}), 200
 

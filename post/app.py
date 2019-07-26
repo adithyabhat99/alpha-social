@@ -113,7 +113,7 @@ def deleteallposts(userid):
         execute(query)
         return jsonify({"message": "success"}), 200
     except:
-        return jsonify({"error": "could not delete"}),401
+        return jsonify({"error": "could not delete"}), 401
 
 
 @app.route('/getlikeslist')
@@ -138,9 +138,27 @@ def get_like_userids(userid):
     except:
         return jsonify({"error": "could not fetch data"}), 401
     likes = []
+    header=request.headers
     for like in result:
         liked = {}
         liked["userid"] = like[0]
+        try:
+            URL = "http://localhost/api/v1.0/f/followsornot?userid1={0}&userid2={1}".format(
+                userid, like[0])
+            r = requests.get(url=URL)
+            result = r.json()
+        except:
+            result=None
+        if "message" in result and result["message"]=="true":
+            liked["userfollows"]=True
+        else:
+            liked["userfollows"]=False
+        URL="http://localhost/api/v1.0/a/getusername?userid2={0}".format(like[0])
+        try:
+            r=requests.get(url=URL,headers=header)
+            liked["username"]=r.json()["username"]
+        except:
+            raise
         likes.append(liked)
     return jsonify({"list": likes}), 200
 
@@ -167,11 +185,18 @@ def get_comments(userid):
     except:
         return jsonify({"error": "could not fetch data"}), 401
     comments = []
+    header=request.headers
     for comment in result:
         commentd = {}
         commentd["postid"] = comment[0]
         commentd["commentid"] = comment[1]
         commentd["userid"] = comment[2]
+        URL="http://localhost/api/v1.0/a/getusername?userid2={0}".format(comment[2])
+        try:
+            r=requests.get(url=URL,headers=header)
+            commentd["username"]=r.json()["username"]
+        except:
+            commentd["username"]=None
         commentd["date"] = comment[4]
         commentd["message"] = comment[5]
         comments.append(commentd)
@@ -201,11 +226,44 @@ def get_post(userid):
     return send_file(filename, mimetype='image/gif')
 
 
+@app.route('/getpostdetails')
+@token_required
+def getpostdetails(userid):
+    postid = request.args.get('postid')
+    userid2 = get_userid_for(postid)
+    URL = "http://localhost/api/v1.0/f/followsornot?userid1={0}&userid2={1}".format(
+        userid, userid2)
+    response = requests.get(url=URL)
+    result = response.json()
+    if result["message"] == "false":
+        return jsonify({"error": "not authorised"}), 401
+    query = "select * from posts.post where postid='{0}'".format(postid)
+    try:
+        result = execute(query)
+        d = {}
+        for post in result:
+            userliked = execute(
+                "select count(*) from posts.likes where postid='{0}' and userid='{1}'".format(post[0], userid))[0][0]
+            d["postid"] = post[0]
+            d["userid"] = post[1]
+            d["date"] = post[2]
+            d["dateupdated"] = post[3]
+            d["location"] = post[4]
+            d["public"] = post[5]
+            d["caption"] = post[6]
+            d["likes"] = get_like_count(post[0])
+            d["comments"] = get_comment_count(post[0])
+            d["userliked"] = userliked
+        return jsonify({"data": d}), 200
+    except:
+        return jsonify({"error": "could not get post details"}), 401
+
+
 @app.route('/getpostsfor/user')
 @token_required
 def getpostfor(userid):
     num = request.args.get('num', default=0, type=int)
-    userid2 = request.args.get('userid2')
+    userid2 = request.args.get('userid2', default=userid)
     URL = "http://localhost/api/v1.0/f/followsornot?userid1={0}&userid2={1}".format(
         userid, userid2)
     response = requests.get(url=URL)
@@ -261,7 +319,7 @@ def getpostfor(userid):
 @token_required
 def delete_comment(userid):
     commentid = request.args.get('commentid')
-    query = "delete from posts.comments where commentid='{0}' and userid='{1}'".format(
+    query = "delete from posts.comments where commentid='{0}' and userid='{1}' or mainuser='{1}'".format(
         commentid, userid)
     try:
         execute(query)

@@ -104,7 +104,7 @@ def home(userid):
     users = "','".join(map(str, res))
     users = "'"+users+"'"
     query = "select * from posts.post where userid in ('{0}',{1}) order by date desc limit {2},{3}".format(
-        userid,users, base, top)
+        userid, users, base, top)
     result2 = execute(query)
     data = []
     for post in result2:
@@ -141,6 +141,8 @@ def discover(userid):
         result = execute(query)
         for post in result:
             d = {}
+            userliked = execute(
+                "select count(*) from posts.likes where postid='{0}' and userid='{1}'".format(post[0], userid))[0][0]
             d["postid"] = post[0]
             d["userid"] = post[1]
             d["date"] = post[2]
@@ -150,6 +152,7 @@ def discover(userid):
             d["caption"] = post[6]
             d["likes"] = get_like_count(post[0])
             d["comments"] = get_comment_count(post[0])
+            d["userliked"] = userliked
             data.append(d)
         return jsonify({"list": data}), 200
     except:
@@ -162,7 +165,7 @@ def discover_trending(userid):
     num = request.args.get('num', default=0, type=int)
     base = num*20
     top = base+20
-    query = "select postid from posts.likes where date(date)=curdate() order by count(*) desc limit {0},{1}".format(
+    query = "select postid from posts.likes where date(date)=curdate() order by count(*) limit {0},{1}".format(
         base, top)
     data = []
     try:
@@ -172,11 +175,14 @@ def discover_trending(userid):
             res.append(postid[0])
         ids = "','".join(map(str, res))
         ids = "'"+ids+"'"
-        query = "select * from posts.post where postid in({0})".format(ids)
+        query = "select * from posts.post where public=1 and postid in({0})".format(
+            ids)
         try:
             result = execute(query)
             for post in result:
                 d = {}
+                userliked = execute(
+                    "select count(*) from posts.likes where postid='{0}' and userid='{1}'".format(post[0], userid))[0][0]
                 d["postid"] = post[0]
                 d["userid"] = post[1]
                 d["date"] = post[2]
@@ -186,6 +192,7 @@ def discover_trending(userid):
                 d["caption"] = post[6]
                 d["likes"] = get_like_count(post[0])
                 d["comments"] = get_comment_count(post[0])
+                d["userliked"] = userliked
                 data.append(d)
             return jsonify({"list": data}), 200
         except:
