@@ -91,6 +91,11 @@ def follows_or_not(userid, userid2):
         return False
     if userid == userid2:
         return True
+    query = "select count(*) from users.user where userid='{0}' and public='1'".format(
+        userid2)
+    result = execute(query)
+    if result[0][0] == 1:
+        return True
     query = "select count(*) from users.follow where follower='{0}' and followed='{1}'".format(
         userid, userid2)
     result = execute(query)
@@ -134,157 +139,6 @@ def hi():
     return jsonify({"message": "hi! welcome to follow server"}), 200
 
 
-@app.route('/follow/user', methods=['PUT'])
-@token_required
-def follow(userid):
-    userid2 = request.args.get('userid2')
-    time = datetime.datetime.now()
-    time = time.strftime('%Y-%m-%d %H:%M:%S')
-    id = userid+'+'+userid2
-    if public_or_not(userid2):
-        try:
-            query = "insert into users.follow(follower,followed,date,id) values('{0}','{1}','{2}','{3}')".format(
-                userid, userid2, time, id)
-            execute(query)
-            return jsonify({"message": "success!"}), 200
-        except:
-            return jsonify({"error": "could not follow {0}".format(userid2)}), 401
-    try:
-        query = "insert into users.followre(follower,followed,date,id) values('{0}','{1}','{2}','{3}')".format(
-            userid, userid2, time, id)
-        execute(query)
-        return jsonify({"message": "success!"}), 200
-    except:
-        return jsonify({"error": "could not follow {0}".format(userid2)}), 401
-
-
-@app.route('/approve', methods=['PUT'])
-@token_required
-def approve(userid):
-    userid2 = request.args.get('userid2')
-    try:
-        query = "delete from users.followre where follower='{0}' and followed='{1}'".format(
-            userid2, userid)
-        execute(query)
-    except:
-        return jsonify({"error": "could not approve {0}".format(userid2)}), 401
-    try:
-        time = datetime.datetime.now()
-        time = time.strftime('%Y-%m-%d %H:%M:%S')
-        id = userid2+'+'+userid
-        query = "insert into users.follow(follower,followed,date,id) values('{0}','{1}','{2}','{3}')".format(
-            userid2, userid, time, id)
-        execute(query)
-        return jsonify({"message": "success!"}), 200
-    except:
-        return jsonify({"error": "could not approve {0}".format(userid2)}), 401
-
-
-@app.route('/getfollowerslist')
-@token_required
-# num=0 for first 20 followers num=1 for 20-40 and so on..
-def get_follow_list(userid):
-    userid2 = request.args.get('userid2',default=userid)
-    num = request.args.get('num', default=0, type=int)
-    if userid != userid2 and not follows_or_not(userid, userid2):
-        return jsonify({"error": "not authorised"}), 401
-    base = num*20
-    top = base+20
-    query = "select follower from users.follow where followed='{0}' order by date desc limit {1},{2}".format(
-        userid2, base, top)
-    try:
-        result = execute(query)
-    except:
-        return jsonify({"error": "could not fetch results"}), 401
-    data = []
-    for users in result:
-        entry = {}
-        entry["userid"] = users[0]
-        entry["username"] = get_username(users[0])
-        entry["userfollows"]=follows_or_not(userid,users[0])
-        data.append(entry)
-    return jsonify({"list": data}), 200
-
-
-@app.route('/getfollowinglist')
-@token_required
-def get_follower_list(userid):
-    userid2 = request.args.get('userid2',default=userid)
-    if userid != userid2 and not follows_or_not(userid, userid2):
-        return jsonify({"error": "not authorised"}), 401
-    query = "select followed from users.follow where follower='{0}' order by date".format(
-        userid2)
-    try:
-        result = execute(query)
-    except:
-        return jsonify({"error": "could not fetch results"}), 401
-    data = []
-    for users in result:
-        entry = {}
-        entry["userid"] = users[0]
-        entry["username"] = get_username(users[0])
-        entry["userfollows"]=follows_or_not(userid,users[0])
-        data.append(entry)
-    return jsonify({"list": data}), 200
-
-
-@app.route('/unfollow', methods=["DELETE"])
-@token_required
-def unfollow(userid):
-    userid2 = request.args.get('userid2')
-    try:
-        query = "delete from users.follow where followed='{0}' and follower='{1}'".format(
-            userid2, userid)
-        execute(query)
-        return jsonify({"message": "success!"}), 200
-    except:
-        return jsonify({"error": "could not unfollow"}), 401
-
-
-@app.route('/disapprove', methods=['DELETE'])
-@token_required
-def disapprove(userid):
-    userid2 = request.args.get('userid2')
-    try:
-        query = "delete from users.followre where follower='{0}' and followed='{1}'".format(
-            userid2, userid)
-        execute(query)
-        return jsonify({"message": "success!"}), 200
-    except:
-        return jsonify({"error": "could not unfollow"}), 401
-
-
-@app.route('/getrequestlist')
-@token_required
-def get_request_list(userid):
-    try:
-        query = "select * from users.followre where followed='{0}'".format(
-            userid)
-        result = execute(query)
-        data = []
-        for users in result:
-            col = {}
-            col["userid"] = users[0]
-            col["username"] = get_username(users[0])
-            data.append(col)
-        return jsonify({"list": data}), 200
-    except:
-        return jsonify({"error": "could not fetch results"}), 401
-
-
-@app.route('/removefollower', methods=['DELETE'])
-@token_required
-def removefollower(userid):
-    userid2 = request.args.get('userid2')
-    try:
-        query = "delete from users.follow where follower='{0}' and following='{1}'".format(
-            userid2, userid)
-        execute(query)
-        return jsonify({"message": "success!"}), 200
-    except:
-        return jsonify({"error": "could not remove follower"}), 401
-
-
 @app.route('/muteuser', methods=['PUT'])
 @token_required
 def mute(userid):
@@ -311,14 +165,14 @@ def report(userid):
         return jsonify({"error": "could not report"}), 401
 
 
-@app.route("/suggestions/users")
+@app.route('/suggestions/users')
 @token_required
 def suggestions(userid):
     num = request.args.get('num', default=0, type=int)
     base = 20*num
     top = base+10
-    query = "select userid,username,firstname,lastname from users.user order by datecreated desc limit {0},{1}".format(
-        base, top)
+    query = "select userid,username,firstname,lastname from users.user where userid not in(select followed from users.follow where follower='{0}') order by datecreated desc limit {1},{2}".format(
+        userid, base, top)
     try:
         result = execute(query)
         data = []
@@ -342,6 +196,9 @@ def follows_or_not_api():
         return jsonify({"message": "true"}), 200
     return jsonify({"message": "false"}), 200
 
+
+from follow_handler import *
+from follow_list import *
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=7800)

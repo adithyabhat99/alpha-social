@@ -79,64 +79,8 @@ def token_required(f):
     return decorated
 
 
-@app.route('/')
-def hello():
-    return jsonify({"message": "Hi,welcome to home page server!"})
-
-
-@app.route('/gethome')
-@token_required
-def home(userid):
-    num = request.args.get('num', default=0, type=int)
-    # num=0 for first 20 posts,num=1 for 20 to 40 and so on...
-    URL = 'http://localhost/api/v1.0/f/getfollowinglist?userid2={0}'.format(
-        userid)
-    response = requests.get(
-        url=URL, headers={"x-access-token": request.headers["x-access-token"]})
-    result = response.json()
-    if "list" not in result:
-        return jsonify({"message": "error"}), 401
-    base = num*20
-    top = base+20
-    res = []
-    for i in result["list"]:
-        res.append(i["userid"])
-    users = "','".join(map(str, res))
-    users = "'"+users+"'"
-    query = "select * from posts.post where userid in ('{0}',{1}) order by date desc limit {2},{3}".format(
-        userid, users, base, top)
-    result2 = execute(query)
-    data = []
-    for post in result2:
-        d = {}
-        try:
-            userliked = execute(
-                "select count(*) from posts.likes where postid='{0}' and userid='{1}'".format(post[0], userid))[0][0]
-            d["postid"] = post[0]
-            d["userid"] = post[1]
-            d["date"] = post[2]
-            d["dateupdated"] = post[3]
-            d["location"] = post[4]
-            d["public"] = post[5]
-            d["caption"] = post[6]
-            d["likes"] = get_like_count(post[0])
-            d["comments"] = get_comment_count(post[0])
-            d["userliked"] = userliked
-            data.append(d)
-        except:
-            return jsonify({"error": "could not fetch"}), 401
-    return jsonify({"list": data}), 200
-
-
-@app.route('/discover/latest')
-@token_required
-def discover(userid):
-    num = request.args.get('num', default=0, type=int)
-    base = num*20
-    top = base+20
-    query = "select * from posts.post where public=1 order by date desc limit {0},{1}".format(
-        base, top)
-    data = []
+def Posts(query, userid):
+    data=[]
     try:
         result = execute(query)
         for post in result:
@@ -147,14 +91,66 @@ def discover(userid):
             d["userid"] = post[1]
             d["date"] = post[2]
             d["dateupdated"] = post[3]
-            d["location"] = post[4]
+            if post[4] == "Null":
+                d["location"] = None
+            else:
+                d["location"] = post[4]
             d["public"] = post[5]
-            d["caption"] = post[6]
-            d["likes"] = get_like_count(post[0])
-            d["comments"] = get_comment_count(post[0])
-            d["userliked"] = userliked
-            data.append(d)
+            if post[6] == "Null":
+                d["caption"] = None
+            else:
+                d["caption"] = post[6]
+                d["likes"] = get_like_count(post[0])
+                d["comments"] = get_comment_count(post[0])
+                d["userliked"] = userliked
+                data.append(d)
         return jsonify({"list": data}), 200
+    except:
+        raise
+
+
+@app.route('/')
+def hello():
+    return jsonify({"message": "Hi,welcome to home page server!"})
+
+# old name gethome
+@app.route('/home')
+@token_required
+def home(userid):
+    num = request.args.get('num', default=0, type=int)
+    # num=0 for first 10 posts,num=1 for 10 to 20 and so on...
+    URL = 'http://localhost/api/v1.0/f/followinglist?userid2={0}'.format(
+        userid)
+    response = requests.get(
+        url=URL, headers={"x-access-token": request.headers["x-access-token"]})
+    result = response.json()
+    if "list" not in result:
+        return jsonify({"message": "error"}), 401
+    base = num*10
+    top = base+10
+    res = []
+    for i in result["list"]:
+        res.append(i["userid"])
+    users = "','".join(map(str, res))
+    users = "'"+users+"'"
+    query = "select * from posts.post where userid in ('{0}',{1}) order by date desc limit {2},{3}".format(
+        userid, users, base, top)
+    try:
+        return Posts(query,userid)
+    except:
+        return jsonify({"error": "could not fetch"}), 401
+
+
+@app.route('/discover/latest')
+@token_required
+def discover(userid):
+    num = request.args.get('num', default=0, type=int)
+    base = num*10
+    top = base+10
+    query = "select * from posts.post where public=1 order by date desc limit {0},{1}".format(
+        base, top)
+    try:
+        return Posts(query,userid)
     except:
         return jsonify({"error": "could not fetch"}), 401
 
@@ -163,11 +159,10 @@ def discover(userid):
 @token_required
 def discover_trending(userid):
     num = request.args.get('num', default=0, type=int)
-    base = num*20
-    top = base+20
+    base = num*10
+    top = base+10
     query = "select postid from posts.likes where date(date)=curdate() order by count(*) limit {0},{1}".format(
         base, top)
-    data = []
     try:
         result = execute(query)
         res = []
@@ -178,23 +173,7 @@ def discover_trending(userid):
         query = "select * from posts.post where public=1 and postid in({0})".format(
             ids)
         try:
-            result = execute(query)
-            for post in result:
-                d = {}
-                userliked = execute(
-                    "select count(*) from posts.likes where postid='{0}' and userid='{1}'".format(post[0], userid))[0][0]
-                d["postid"] = post[0]
-                d["userid"] = post[1]
-                d["date"] = post[2]
-                d["dateupdated"] = post[3]
-                d["location"] = post[4]
-                d["public"] = post[5]
-                d["caption"] = post[6]
-                d["likes"] = get_like_count(post[0])
-                d["comments"] = get_comment_count(post[0])
-                d["userliked"] = userliked
-                data.append(d)
-            return jsonify({"list": data}), 200
+            return Posts(query,userid)
         except:
             return jsonify({"error": "could not fetch"}), 401
     except:

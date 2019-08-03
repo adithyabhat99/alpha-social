@@ -63,6 +63,7 @@ def get_username(userid):
     except:
         return None
 
+
 def token_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
@@ -79,11 +80,10 @@ def token_required(f):
     return decorated
 
 
-@app.route('/createdevaccount',methods=['PUT'])
+@app.route('/devaccount',methods=['PUT'])
 @token_required
 def create_api_account(userid):
     appname = request.args.get('appname')
-
     query = "select count(*) from users.dev where devid='{0}'".format(
         userid)
     try:
@@ -144,7 +144,7 @@ def revokeaccess(userid):
         return jsonify({"error": "could not revoke access"}), 401
 
 
-@app.route('/getdetails')
+@app.route('/details')
 @token_required
 def getdetails(userid):
     userid2 = request.args.get('userid')
@@ -216,7 +216,7 @@ def getdetails(userid):
         return jsonify({"error": "could not fetch"}), 401
 
 
-@app.route('/getappname')
+@app.route('/appname')
 @token_required
 def getappname_api(userid):
     devid = request.args.get('devid')
@@ -228,7 +228,7 @@ def getappname_api(userid):
     return jsonify({"appname": result[0][0]}), 200
 
 
-@app.route('/getmydevs')
+@app.route('/mydevs')
 @token_required
 def getmydevs(userid):
     query="select devid,appname from users.dev where userid='{0}'".format(userid)
