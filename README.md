@@ -21,7 +21,6 @@
 - Messaging service 
 
 
-# Documentation and License
+# License
 
-### [API Documentation](./DOCUMENTATION.md)
 ### [LICENSE](./LICENSE)
