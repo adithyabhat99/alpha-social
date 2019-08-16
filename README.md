@@ -14,14 +14,9 @@
 
 ## Technologies used
 - Python Flask
-<<<<<<< HEAD
 - AWS S3 for file storage
 - MySQL database
 - Docker for dependency management and virtualization
-=======
-- MySQL database
-- Docker
->>>>>>> d15735b7c6fd00c4d100cfd658f1eca89a18cc7e
 
 ## Future work
 - Notifications,emails,SMS etc.
