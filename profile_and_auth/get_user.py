@@ -1,6 +1,5 @@
 from app import *
 
-# old name getdetails
 @app.route('/details')
 @token_required
 def getdetails(userid):
@@ -32,7 +31,6 @@ def getdetails(userid):
     }
     return jsonify({"details": data}), 200
 
-# old name getusername
 @app.route('/username')
 @token_required
 def get_username_api(userid):
@@ -42,7 +40,6 @@ def get_username_api(userid):
         return jsonify({"error": "could not get username"}), 401
     return jsonify({"username": username}), 200
 
-# old name getuserid
 @app.route('/userid')
 @token_required
 def get_userid_api(userid):

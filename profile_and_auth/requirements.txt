@@ -4,3 +4,4 @@ flask-mysql
 PyJWT
 Pillow
 flask-cors
+boto3

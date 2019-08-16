@@ -1,6 +1,6 @@
 from app import *
+from aws import *
 
-# old name getmydetails
 @app.route('/myaccount', methods=['GET'])
 @token_required
 def getmydetails(userid):
@@ -59,7 +59,6 @@ def getmydetails(userid):
         return jsonify({"error": "could not fetch"}), 401
 
 
-# old name createaccount
 @app.route('/myaccount', methods=['POST'])
 def create_user():
     data = request.get_json()
@@ -93,7 +92,7 @@ def create_user():
         if 'bio' in data:
             bio = data['bio']
         else:
-            bio = 'null'
+            bio = 'Null'
         if 'phoneno' not in data and 'email' not in data:
             return jsonify({"error": "email or phoneno is must"}), 401
         if 'phoneno' in data:
@@ -123,9 +122,9 @@ def create_user():
                                                                                                               token, phonetoken, public, time, time, bio)
         execute(query)
         filename = str(userid)+".jpg"
-        defaultfile = 'defualt.jpg'
-        shutil.copy(os.path.join(app.config['USERS_FOLDER'], defaultfile), os.path.join(
-            app.config['USERS_FOLDER'], filename))
+        defaultfile = 'default.jpg'
+        shutil.copy(defaultfile,filename)
+        upload_s3(filename)
         token = jwt.encode({"userid": str(userid), "username": username, "exp": datetime.datetime.now(
         )+datetime.timedelta(days=7)}, app.secret_key)
         return jsonify({'x-access-token': token.decode('UTF-8'), 'userid': str(userid)}), 200
@@ -133,7 +132,6 @@ def create_user():
         jsonify({"error": "could not create account"}), 401
 
 
-# old name deletemyaccount
 @app.route('/myaccount', methods=['DELETE'])
 @token_required
 def delte_account(userid):

@@ -1,6 +1,5 @@
 from app import *
 
-# old name getpostsfor/user
 @app.route('/userpostslist')
 @token_required
 def getpostfor(userid):
@@ -72,7 +71,6 @@ def getpostfor(userid):
         return jsonify({"error": "could not get posts"}), 401
 
 
-# old name getlikeslist
 @app.route('/likeslist')
 @token_required
 def get_like_userids(userid):
@@ -102,7 +100,6 @@ def get_like_userids(userid):
     return jsonify(details), 200
 
 
-# old name getcommentslist
 @app.route('/commentslist')
 @token_required
 def get_comments(userid):

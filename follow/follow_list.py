@@ -1,6 +1,5 @@
 from app import *
 
-# old name getrequestlist
 @app.route('/requestslist')
 @token_required
 def get_request_list(userid):
@@ -18,7 +17,6 @@ def get_request_list(userid):
     except:
         return jsonify({"error": "could not fetch results"}), 401
 
-# old name getfollowinglist
 @app.route('/followinglist')
 @token_required
 def get_follower_list(userid):
@@ -41,7 +39,6 @@ def get_follower_list(userid):
     return jsonify({"list": data}), 200
 
 
-# old name getfollowerslist
 @app.route('/followerslist')
 @token_required
 # num=0 for first 10 followers num=1 for 10-20 and so on..

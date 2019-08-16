@@ -10,15 +10,13 @@ from functools import wraps
 from werkzeug.security import generate_password_hash, check_password_hash
 from PIL import Image
 from flask_cors import CORS, cross_origin
+from aws import *
 
 app = Flask(__name__)
 mysql = MySQL(app)
 CORS(app)
 
 app.secret_key = 'adi123secret'
-POSTS_FOLDER = '/mnt/Posts'
-ALLOWED_EXTENSIONS = set(['jpg', 'png'])
-app.config['POSTS_FOLDER'] = POSTS_FOLDER
 # MySQL Configs
 app.config['MYSQL_DATABASE_USER'] = 'root'
 app.config['MYSQL_DATABASE_PASSWORD'] = '123654654'
@@ -28,6 +26,7 @@ app.config['MYSQL_DATABASE_PORT'] = 52100
 
 mysql.init_app(app)
 
+ALLOWED_EXTENSIONS = set(['jpg', 'png'])
 
 def execute(query):
     try:
@@ -189,7 +188,6 @@ def likeslist(postid,base,top,userid):
 def hello():
     return jsonify({"message": "Hi,welcome to post server!"})
 
-# old name getpostdetails
 @app.route('/postdetails')
 @token_required
 def getpostdetails(userid):
@@ -226,7 +224,7 @@ def deleteallposts(userid):
     try:
         result = execute(query)
         for post in result:
-            os.remove(os.path.join(app.config['POSTS_FOLDER'], post[0]+'.jpg'))
+            delete_s3(post+'.jpg')
         query = "delete from posts.post where userid='{0}'".format(userid)
         execute(query)
         return jsonify({"message": "success"}), 200
@@ -236,6 +234,7 @@ def deleteallposts(userid):
 from post import *
 from post_list import *
 from like_comment import *
+from aws import *
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=7900)

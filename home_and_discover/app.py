@@ -16,9 +16,6 @@ mysql = MySQL(app)
 CORS(app)
 
 app.secret_key = 'adi123secret'
-POSTS_FOLDER = '/mnt/Posts'
-ALLOWED_EXTENSIONS = set(['jpg', 'png'])
-app.config['POSTS_FOLDER'] = POSTS_FOLDER
 # MySQL Configs
 app.config['MYSQL_DATABASE_USER'] = 'root'
 app.config['MYSQL_DATABASE_PASSWORD'] = '123654654'
@@ -100,10 +97,10 @@ def Posts(query, userid):
                 d["caption"] = None
             else:
                 d["caption"] = post[6]
-                d["likes"] = get_like_count(post[0])
-                d["comments"] = get_comment_count(post[0])
-                d["userliked"] = userliked
-                data.append(d)
+            d["likes"] = get_like_count(post[0])
+            d["comments"] = get_comment_count(post[0])
+            d["userliked"] = userliked
+            data.append(d)
         return jsonify({"list": data}), 200
     except:
         raise
@@ -113,7 +110,6 @@ def Posts(query, userid):
 def hello():
     return jsonify({"message": "Hi,welcome to home page server!"})
 
-# old name gethome
 @app.route('/home')
 @token_required
 def home(userid):
@@ -161,7 +157,7 @@ def discover_trending(userid):
     num = request.args.get('num', default=0, type=int)
     base = num*10
     top = base+10
-    query = "select postid from posts.likes where date(date)=curdate() order by count(*) limit {0},{1}".format(
+    query = "select postid from posts.likes where date(date)=curdate() group by postid order by count(*) limit {0},{1}".format(
         base, top)
     try:
         result = execute(query)

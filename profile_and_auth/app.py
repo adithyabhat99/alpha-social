@@ -15,9 +15,6 @@ CORS(app)
 mysql = MySQL(app)
 
 app.secret_key = 'adi123secret'
-USERS_FOLDER = '/mnt/Users'
-ALLOWED_EXTENSIONS = set(['jpg', 'png'])
-app.config['USERS_FOLDER'] = USERS_FOLDER
 # MySQL Configs
 app.config['MYSQL_DATABASE_USER'] = 'root'
 app.config['MYSQL_DATABASE_PASSWORD'] = '123654654'
@@ -27,6 +24,7 @@ app.config['MYSQL_DATABASE_PORT'] = 52000
 
 mysql.init_app(app)
 
+ALLOWED_EXTENSIONS = set(['jpg', 'png'])
 
 def token_required(f):
     @wraps(f)
@@ -42,6 +40,7 @@ def token_required(f):
             return jsonify({"error": "token is invalid"}), 401
         return f(data["userid"], *args, **kwargs)
     return decorated
+
 
 
 def execute(query):
@@ -159,7 +158,7 @@ from myaccount import *
 from search import *
 from profilepic import *
 from get_user import *
-
+from aws import *
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=7700)

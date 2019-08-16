@@ -5,3 +5,4 @@ PyJWT
 Pillow
 requests
 flask-cors
+boto3

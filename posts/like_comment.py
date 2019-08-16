@@ -2,7 +2,6 @@ from app import *
 
 # Like section
 
-# old name like/post
 @app.route('/like', methods=['PUT'])
 @token_required
 def like_post(userid):
@@ -29,7 +28,6 @@ def like_post(userid):
         return jsonify({"error": "could not like"}), 401
 
 
-# old name delete/like
 @app.route('/like', methods=['DELETE'])
 @token_required
 def delete_like(userid):
@@ -78,7 +76,6 @@ def commet_post(userid):
         return jsonify({"error": "could not post comment"}), 401
 
 
-# old name delete/comment
 @app.route('/comment', methods=['DELETE'])
 @token_required
 def delete_comment(userid):

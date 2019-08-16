@@ -1,6 +1,6 @@
 from app import *
+from aws import *
 
-# old name getpost
 @app.route('/post')
 @token_required
 def get_post(userid):
@@ -10,18 +10,18 @@ def get_post(userid):
         userid, userid2)
     r = requests.get(url=URL)
     result = r.json()
-    data = []
+    filename = postid+'.jpg'
     if result["message"] == "false":
         query = "select count(*) from posts.post where postid='{0}' and public=1".format(
             postid)
         result = execute(query)
-        filename = os.path.join(app.config['POSTS_FOLDER'], postid+'.jpg')
         if result[0][0] == 1:
-            return send_file(filename, mimetype='image/gif')
+            download_s3(filename)
+            return send_file('post.jpg', mimetype='image/gif')
         else:
             return jsonify({"error": "not authorised"}), 401
-    filename = os.path.join(app.config['POSTS_FOLDER'], postid+'.jpg')
-    return send_file(filename, mimetype='image/gif')
+    download_s3(filename)
+    return send_file('post.jpg', mimetype='image/gif')
 
 
 @app.route('/post', methods=['POST'])
@@ -59,25 +59,25 @@ def post(userid):
         if file_extension(file.filename) == "png":
             im = Image.open(request.files["file"].stream)
             rgb_im = im.convert('RGB')
-            rgb_im.save(os.path.join(
-                app.config['POSTS_FOLDER'], filename), "JPEG", dpi=(300, 300))
+            rgb_im.save(filename, "JPEG", dpi=(200, 200))
         else:
             im = Image.open(request.files["file"].stream)
-            im.save(os.path.join(
-                app.config['POSTS_FOLDER'], filename), dpi=(300, 300))
+            im.save(filename,"JPEG", dpi=(200, 200))
         query = "insert into posts.post(postid,userid,date,dateupdated,location,public,caption) values('{0}','{1}','{2}','{3}','{4}','{5}','{6}')".format(
             str(postid), userid, time, time, location, public, caption)
         try:
             execute(query)
         except:
             return jsonify({"error": "unsuccessfull"}), 401
-
-        return jsonify({"message": "success!", "postid": postid}), 200
+        try:
+            upload_s3(filename)
+            return jsonify({"message": "success!", "postid": postid}), 200
+        except:
+            return jsonify({"error": "unsuccessfull"}), 401
     else:
-        return jsonify({"error": "unsuccessfull"}), 401
+        return jsonify({"error": "only jpg and png files are supported"}), 401
 
 
-# old name update/post
 @app.route('/post', methods=['PUT'])
 @token_required
 def updatepost(userid):
@@ -113,25 +113,25 @@ def updatepost(userid):
         if file_extension(file.filename) == "png":
             im = Image.open(request.files["file"].stream)
             rgb_im = im.convert('RGB')
-            rgb_im.save(os.path.join(
-                app.config['POSTS_FOLDER'], filename), "JPEG", dpi=(300, 300))
+            rgb_im.save(filename, "JPEG", dpi=(200, 200))
         else:
             im = Image.open(request.files["file"].stream)
-            im.save(os.path.join(
-                app.config['POSTS_FOLDER'], filename), dpi=(300, 300))
+            im.save(filename, dpi=(200, 200))
         query = "update posts.post set dateupdated='{0}',location='{1}',public='{2}',caption='{3}' where userid='{4}' and postid='{5}'".format(
             time, location, public, caption, userid, postid)
         try:
             execute(query)
         except:
             return jsonify({"error": "unsuccessfull"}), 401
-
-        return jsonify({"message": "success!", "postid": postid}), 200
+        try:
+            upload_s3(filename)
+            return jsonify({"message": "success!", "postid": postid}), 200
+        except:
+            return jsonify({"error": "unsuccessfull"}), 401
     else:
         return jsonify({"error": "unsuccessfull"}), 401
 
 
-# old name delete/post
 @app.route('/post', methods=['DELETE'])
 @token_required
 def deletepost(userid):
@@ -140,7 +140,11 @@ def deletepost(userid):
         userid, postid)
     try:
         execute(query)
-        os.remove(os.path.join(app.config['POSTS_FOLDER'], postid+".jpg"))
+    except:
+        return jsonify({"error": "unsuccessfull"}), 401
+    try:
+        filename=postid+'jpg'
+        delete_s3(filename)
     except:
         return jsonify({"error": "unsuccessfull"}), 401
     return jsonify({"message": "success!"}), 200

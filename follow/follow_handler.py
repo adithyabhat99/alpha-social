@@ -1,6 +1,5 @@
 from app import *
 
-# old name follow/user
 @app.route('/follow', methods=['PUT'])
 @token_required
 def follow(userid):

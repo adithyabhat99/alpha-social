@@ -16,9 +16,6 @@ mysql = MySQL(app)
 
 app.secret_key = 'adi123secret'
 app.config['API_SECRET_KEY'] = 'alphaapisecret'
-USERS_FOLDER = '/mnt/Users'
-ALLOWED_EXTENSIONS = set(['jpg', 'png'])
-app.config['USERS_FOLDER'] = USERS_FOLDER
 # MySQL Configs
 app.config['MYSQL_DATABASE_USER'] = 'root'
 app.config['MYSQL_DATABASE_PASSWORD'] = '123654654'

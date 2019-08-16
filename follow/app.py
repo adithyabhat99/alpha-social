@@ -15,8 +15,6 @@ mysql = MySQL(app)
 CORS(app)
 
 app.secret_key = 'adi123secret'
-USERS_FOLDER = '/mnt/Users'
-app.config['USERS_FOLDER'] = USERS_FOLDER
 # MySQL Configs
 app.config['MYSQL_DATABASE_USER'] = 'root'
 app.config['MYSQL_DATABASE_PASSWORD'] = '123654654'
