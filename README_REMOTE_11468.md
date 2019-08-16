@@ -7,21 +7,14 @@
 - Follow service has features like follow any user,approve follow requests,get user details etc.
 - Posts service to post images,like,comment,delete post,get post and many other features
 - Home and search gives a user's home page contents,trending public posts,latest public posts etc.
-- [Browser client](https://github.com/adithyabhat99/alpha-social-client) 
 
 ![Architecture](https://user-images.githubusercontent.com/30742449/60392061-ac607100-9b19-11e9-9fb6-02a6a43cfbae.jpg)
 
 
 ## Technologies used
 - Python Flask
-<<<<<<< HEAD
-- AWS S3 for file storage
-- MySQL database
-- Docker for dependency management and virtualization
-=======
 - MySQL database
 - Docker
->>>>>>> d15735b7c6fd00c4d100cfd658f1eca89a18cc7e
 
 ## Future work
 - Notifications,emails,SMS etc.
