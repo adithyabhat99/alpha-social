@@ -1,8 +1,8 @@
 import boto3
 import os
 
-access_key='xxxx'
-secret_key='xxxx'
+access_key=''
+secret_key=''
 
 s3=boto3.client(
     "s3",
